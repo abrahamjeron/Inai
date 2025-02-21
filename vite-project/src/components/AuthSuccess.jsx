@@ -1,7 +1,8 @@
+// src/components/AuthSuccess.jsx
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-function AuthSuccess({ setUser }) {
+function AuthSuccess() {
   const navigate = useNavigate();
   
   useEffect(() => {
@@ -13,13 +14,12 @@ function AuthSuccess({ setUser }) {
 
     if (token && username) {
       const userData = { username, email, avatar, token };
-      setUser(userData);
       localStorage.setItem('user', JSON.stringify(userData));
-      navigate('/chat');
+      navigate('/inai');
     } else {
       navigate('/login');
     }
-  }, [setUser, navigate]);
+  }, [navigate]);
 
   return (
     <div className="flex justify-center items-center h-screen">
