@@ -115,6 +115,23 @@ export const setupSocketHandlers = (io) => {
         console.error('Error playing music:', error);
       }
     });
+    // to set current video
+    socket.on('set current video', async ({ roomName, videoId }) => {
+      try {
+        const playlist = await Playlist.findOne({ room: roomName });
+        if (!playlist) return;
+    
+        playlist.currentVideoId = videoId;
+        await playlist.save();
+    
+        io.to(roomName).emit('current video changed', {
+          videoId,
+          timestamp: new Date()
+        });
+      } catch (error) {
+        console.error('Error setting current video:', error);
+      }
+    });
 
     // Pause music
     socket.on('pause music', async ({ roomName, position }) => {
