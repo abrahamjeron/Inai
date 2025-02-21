@@ -1,9 +1,13 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import io from "socket.io-client";
-import ChatRoom from "../components/ChatRoom";
+import { Link } from "react-router-dom";
 import { Search } from "lucide-react";
+import ChatRoom from "../components/ChatRoom";
+import Header from '../components/header'
+
 import { Card, CardHeader, CardTitle, CardContent } from '../components/Card';
+import landingimg from "../assets/landingimg.svg";
 
 // Initialize socket connection
 const socket = io("http://localhost:3001", {
@@ -27,6 +31,7 @@ function Home({ user, setUser }) {
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [selectedRoom, setSelectedRoom] = useState(null);
   const [error, setError] = useState("");
+  const [showRooms, setShowRooms] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -37,7 +42,7 @@ function Home({ user, setUser }) {
   const fetchRooms = async () => {
     try {
       const response = await axios.get("http://localhost:3001/rooms", {
-        headers: { Authorization: user.token },
+        headers: { Authorization: user?.token },
       });
       setRooms(response.data);
     } catch (error) {
@@ -68,6 +73,7 @@ function Home({ user, setUser }) {
       );
       setRooms([...rooms, response.data]);
       setError("");
+      setShowRooms(true);
     } catch (error) {
       setError(error.response?.data?.error || "Error creating room");
       console.error("Error creating room:", error);
@@ -101,6 +107,7 @@ function Home({ user, setUser }) {
       setShowPasswordModal(false);
       setRoomPassword("");
       setError("");
+      setShowRooms(true);
     } catch (error) {
       setError(error.response?.data?.error || "Error joining room");
     }
@@ -116,103 +123,26 @@ function Home({ user, setUser }) {
       socket.emit("leave room", currentRoom.name);
       setCurrentRoom(null);
     }
+    setShowRooms(false);
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem('user');
-    setUser(null);
-  };
-
-  return (
-    <div className="flex h-screen">
-      <div className="w-1/4 p-4 bg-gray-100">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold">Welcome, {user.username}</h2>
-          <button 
-            onClick={handleLogout}
-            className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
-          >
-            Logout
-          </button>
-        </div>
-
-        <div className="mb-4">
-          <div className="relative">
-            <input
-              type="text"
-              placeholder="Search rooms..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full p-2 pr-10 rounded border"
+  if (showRooms || currentRoom) {
+    return (
+      <div className="flex h-screen">
+        <div className="w-3/4 p-4">
+          {currentRoom ? (
+            <ChatRoom
+              room={currentRoom}
+              user={user}
+              socket={socket}
+              leaveRoom={leaveRoom}
             />
-            <Search className="absolute right-3 top-2.5 text-gray-400" size={20} />
-          </div>
-        </div>
-
-        {error && (
-          <div className="mb-4 p-2 bg-red-100 text-red-600 rounded">
-            {error}
-          </div>
-        )}
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Available Rooms</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2">
-              {filteredRooms.map((room) => (
-                <div
-                  key={room._id}
-                  className="p-3 bg-white rounded shadow hover:shadow-md transition-shadow"
-                >
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <span className="font-medium">{room.name}</span>
-                      <span className="ml-2">
-                        {room.isPrivate ? 
-                          <span className="text-red-500">🔒 Private</span> : 
-                          <span className="text-green-500">🌐 Public</span>
-                        }
-                      </span>
-                    </div>
-                    {currentRoom?._id !== room._id && (
-                      <button
-                        onClick={() => handleJoinRoom(room)}
-                        className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
-                      >
-                        Join
-                      </button>
-                    )}
-                  </div>
-                </div>
-              ))}
+          ) : (
+            <div className="flex items-center justify-center h-full">
+              <p className="text-gray-500 text-lg">Select a room to start chatting</p>
             </div>
-          </CardContent>
-        </Card>
-
-        <div className="mt-4 space-y-2">
-          <button
-            className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
-            onClick={() => {
-              const name = prompt("Room name:");
-              if (name) createRoom(name, false);
-            }}
-          >
-            Create Public Room
-          </button>
-          <button
-            className="w-full bg-green-500 text-white p-2 rounded hover:bg-green-600"
-            onClick={() => {
-              const name = prompt("Room name:");
-              const password = prompt("Room password:");
-              if (name) createRoom(name, true, password);
-            }}
-          >
-            Create Private Room
-          </button>
+          )}
         </div>
-
         {showPasswordModal && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
             <div className="bg-white p-4 rounded-lg w-80">
@@ -248,20 +178,110 @@ function Home({ user, setUser }) {
           </div>
         )}
       </div>
-      <div className="w-3/4 p-4">
-        {currentRoom ? (
-          <ChatRoom
-            room={currentRoom}
-            user={user}
-            socket={socket}
-            leaveRoom={leaveRoom}
-          />
-        ) : (
-          <div className="flex items-center justify-center h-full">
-            <p className="text-gray-500 text-lg">Select a room to start chatting</p>
+    );
+  }
+
+  return (
+
+    <div>
+      <div className="flex justify-center">
+        <div className="bg-black rounded-2xl w-[93%] mt-6 h-auto">
+          <div className="flex mt-10 items-center justify-center">
+            <h1 className="text-[6rem] font-bold tracking-tight bg-gradient-to-r from-white via-gray-300 to-gray-400 text-transparent bg-clip-text">
+              InaiVibe
+            </h1>
           </div>
-        )}
+          <div className="flex mt-4">
+            <div>
+              <div className="ml-28">
+                <h1 className="text-white text-[3rem] font-light w-[520px]">
+                  Chat with your friends seamlessly
+                </h1>
+                <h3 className="text-[#BDBDBD] text-[1rem] mt-3 font-light w-[520px]">
+                  Connect with friends in real-time chat rooms, <br />
+                  create public or private spaces for discussions, <br />
+                  and enjoy interactive conversations with <br />
+                  real-time messaging and reactions.
+                </h3>
+                <div className="flex mt-[30px] space-x-4">
+                    {/* room creation */}
+                <button
+              className="text-black bg-white text-[1.2rem] p-2 px-5 rounded-3xl"
+              onClick={() => {
+                const name = prompt("Room name:");
+                const password = prompt("Room password:");
+                if (name) createRoom(name, true, password);
+              }}
+            >
+              Create Private Room
+            </button>
+
+            <button
+              className="text-white relative top-2 text-[1.2rem]"
+              onClick={() => {
+                const name = prompt("Room name:");
+                if (name) createRoom(name, false);
+              }}
+            >
+              Create Public Room
+            </button>
+
+                </div>
+              </div>
+            </div>
+            <div className="mt-[10px] mb-[80px] mr-6 ml-12">
+              <img src={landingimg} className="h-[400px]" alt="Landing" />
+            </div>
+          </div>
+        </div>
       </div>
+      <div className="mb-4">
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="Search rooms..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full p-2 pr-10 rounded border"
+              />
+              <Search className="absolute right-3 top-2.5 text-gray-400" size={20} />
+            </div>
+          </div>
+      <Card>
+            <CardHeader>
+              <CardTitle>Available Rooms</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                {filteredRooms.map((room) => (
+                  <div
+                    key={room._id}
+                    className="p-3 bg-white rounded shadow hover:shadow-md transition-shadow"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <span className="font-medium">{room.name}</span>
+                        <span className="ml-2">
+                          {room.isPrivate ? 
+                            <span className="text-red-500">🔒 Private</span> : 
+                            <span className="text-green-500">🌐 Public</span>
+                          }
+                        </span>
+                      </div>
+                      {currentRoom?._id !== room._id && (
+                        <button
+                          onClick={() => handleJoinRoom(room)}
+                          className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+                        >
+                          Join
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
     </div>
   );
 }

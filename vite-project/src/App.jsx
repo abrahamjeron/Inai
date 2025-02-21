@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Home from './pages/homes';
+import Room from './pages/rooms';  // Import the Room component
 import AuthSuccess from './components/AuthSuccess';
 import Login from './components/Login';
 import Register from './components/Register';
+import Header from './components/header';
 
 function App() {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    // Check for stored user on component mount
     const storedUser = localStorage.getItem('user');
     if (storedUser) {
       try {
@@ -23,6 +24,7 @@ function App() {
 
   return (
     <Router>
+      {user && <Header user={user} setUser={setUser} />} {/* Display Header if logged in */}
       <Routes>
         <Route 
           path="/" 
@@ -48,6 +50,16 @@ function App() {
                   <Register />
                 </div>
               </div>
+            )
+          } 
+        />
+        <Route 
+          path="/room" 
+          element={
+            user ? (
+              <Room user={user} />
+            ) : (
+              <Navigate to="/login" />
             )
           } 
         />

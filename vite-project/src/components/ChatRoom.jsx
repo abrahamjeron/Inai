@@ -1,11 +1,23 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
-// import MusicPlayer from './MusicPlayer';
+import VideoPlayer from "../components/videoPlayer"
+import SearchBox from '../components/searchBox' 
 function ChatRoom({ room, user, socket, leaveRoom }) {
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState([]);
+  const [selectedVideoId, setSelectedVideoId] = useState("");
   const [file, setFile] = useState(null);
   const messagesEndRef = useRef(null);
+
+  useEffect(() => {
+    if (selectedVideoId) {
+      socket.emit('set current video', {
+        roomName: room.name,
+        videoId: selectedVideoId
+      });
+    }
+  }, [selectedVideoId, socket, room.name]);
+  
 
   useEffect(() => {
     fetchMessages();
@@ -25,11 +37,15 @@ function ChatRoom({ room, user, socket, leaveRoom }) {
         msg._id === messageId ? { ...msg, reactions } : msg
       ));
     });
+    socket.on('current video changed', ({ videoId }) => {
+      setSelectedVideoId(videoId);
+    });
 
     return () => {
       socket.off('chat message');
       socket.off('message deleted');
       socket.off('message reacted');
+      socket.off('current video changed');
     };
   }, [socket, room]);
 
@@ -84,11 +100,16 @@ function ChatRoom({ room, user, socket, leaveRoom }) {
 
   return (
     <div className="h-full flex flex-col">
+
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-2xl font-bold">{room.name}</h2>
         <button onClick={leaveRoom} className="bg-red-500 text-white p-2 rounded">
           Leave Room
         </button>
+      </div>
+      <div className='flex'>
+        <VideoPlayer videoId={selectedVideoId}/>
+        <SearchBox onVideoSelect={setSelectedVideoId}/>
       </div>
       <div className="flex-grow overflow-y-auto mb-4 space-y-2">
         {messages.map((msg) => (
