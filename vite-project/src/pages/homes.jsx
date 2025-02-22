@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import { Search } from "lucide-react";
 import ChatRoom from "../components/ChatRoom";
 import Header from '../components/header'
+import RoomMembers from "../components/Members";
 
 import { Card, CardHeader, CardTitle, CardContent } from '../components/Card';
 import landingimg from "../assets/landingimg.svg";
@@ -103,7 +104,10 @@ function Home({ user, setUser }) {
         socket.emit("leave room", currentRoom.name);
       }
       setCurrentRoom(room);
-      socket.emit("join room", room.name);
+      socket.emit("join room", {
+        roomName:room.name,
+        userName:user.username
+       });
       setShowPasswordModal(false);
       setRoomPassword("");
       setError("");
@@ -120,7 +124,7 @@ function Home({ user, setUser }) {
 
   const leaveRoom = () => {
     if (currentRoom) {
-      socket.emit("leave room", currentRoom.name);
+      socket.emit("leave room", {roomName:currentRoom.name, userName:user.username });
       setCurrentRoom(null);
     }
     setShowRooms(false);
@@ -142,6 +146,11 @@ function Home({ user, setUser }) {
               <p className="text-gray-500 text-lg">Select a room to start chatting</p>
             </div>
           )}
+        </div>
+        <div className="w-1/4 p-4">
+        {currentRoom && (
+            <RoomMembers roomId={currentRoom._id} />
+        )}
         </div>
         {showPasswordModal && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
@@ -184,6 +193,7 @@ function Home({ user, setUser }) {
   return (
 
     <div>
+        {/* <Header/> */}
       <div className="flex justify-center">
         <div className="bg-black rounded-2xl w-[93%] mt-6 h-auto">
           <div className="flex mt-10 items-center justify-center">

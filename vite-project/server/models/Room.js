@@ -5,7 +5,7 @@ const roomSchema = new mongoose.Schema({
   isPrivate: { type: Boolean, default: false },
   password: String,
   creator: { type: String, required: true },
-  members: [String],
+  members: [{type:String,required:false}],
   admins: [String],
   djs: [String],
   musicEnabled: { type: Boolean, default: true },
