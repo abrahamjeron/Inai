@@ -7,16 +7,66 @@ export const setupSocketHandlers = (io) => {
     console.log('User connected:', socket.id);
 
     // Join a room
-    socket.on('join room', (roomName) => {
-      socket.join(roomName);
-      console.log(`User joined room: ${roomName}`);
+    socket.on('join room', async ({ roomName, userName }) => {
+      try {
+        const room = await Room.findOne({ name: roomName });
+        if (!room) {
+          socket.emit('room error', { error: 'Room not found' });
+          return;
+        }
+    
+        if (!room.members.includes(userName)) {
+          room.members.push(userName);
+          await room.save();
+    
+          console.log('New member added:', userName);
+          console.log('Updated members:', room.members);
+    
+          // Notify all users in the room about the new member
+          io.to(roomName).emit('member joined', {
+            userName,
+            memberCount: room.members.length
+          });
+        }
+    
+        socket.join(roomName);
+        console.log('User name:', userName);
+        console.log(`User joined room: ${roomName}`);
+      } catch (error) {
+        console.error('Error joining room:', error);
+        socket.emit('room error', { error: 'Internal server error' });
+      }
     });
+    
 
     // Leave a room
-    socket.on('leave room', (roomName) => {
-      socket.leave(roomName);
-      console.log(`User left room: ${roomName}`);
+    socket.on('leave room', async ({ roomName, userName }) => {
+      try {
+        const room = await Room.findOne({ name: roomName });
+        if (!room) {
+          socket.emit('room error', { error: 'Room not found' });
+          return;
+        }
+    
+        // Remove the user from the room's members
+        room.members = room.members.filter(member => member !== userName);
+        await room.save();
+    
+        socket.leave(roomName);
+        console.log(`User ${userName} left room: ${roomName}`);
+        console.log('Updated members:', room.members);
+    
+        // Notify remaining users about the member leaving
+        io.to(roomName).emit('member left', {
+          userName,
+          memberCount: room.members.length
+        });
+      } catch (error) {
+        console.error('Error leaving room:', error);
+        socket.emit('room error', { error: 'Internal server error' });
+      }
     });
+    
 
     // Handle chat messages
     socket.on('chat message', async (msg) => {
@@ -77,45 +127,43 @@ export const setupSocketHandlers = (io) => {
     });
 
     // Play music
-    socket.on('play music', async ({ roomName, videoId, position }) => {
+    socket.on('play music', async ({ roomName, videoId }) => {
       try {
         const room = await Room.findOne({ name: roomName });
         if (!room) return;
-
+    
         const playlist = await Playlist.findOne({ room: roomName });
         if (!playlist) return;
-
-        const song = playlist.songs.find(s => s.videoId === videoId);
-        if (!song) return;
-
+    
         playlist.currentSong = {
           videoId,
-          startedAt: new Date(),
-          position: position || 0,
-          isPlaying: true
+          isPlaying: true,
+          position: 0,
+          startedAt: new Date()
         };
-
+    
         await playlist.save();
-
+    
         io.to(roomName).emit('music state changed', {
           videoId,
-          position: position || 0,
           isPlaying: true,
+          position: 0,
           timestamp: new Date()
         });
-
+    
         const message = await Message.create({
           room: roomName,
           user: 'System',
-          text: `🎵 Now playing: ${song.title}`
+          text: '▶️ Playing music'
         });
-
+    
         io.to(roomName).emit('chat message', message);
       } catch (error) {
         console.error('Error playing music:', error);
       }
     });
-    // to set current video
+    
+    // to set current
     socket.on('set current video', async ({ roomName, videoId }) => {
       try {
         const playlist = await Playlist.findOne({ room: roomName });
@@ -132,31 +180,34 @@ export const setupSocketHandlers = (io) => {
         console.error('Error setting current video:', error);
       }
     });
+    
 
     // Pause music
-    socket.on('pause music', async ({ roomName, position }) => {
+    socket.on('pause music', async ({ roomName, videoId, position }) => {
       try {
         const playlist = await Playlist.findOne({ room: roomName });
-        if (!playlist || !playlist.currentSong) return;
-
-        playlist.currentSong.isPlaying = false;
-        playlist.currentSong.position = position;
-        await playlist.save();
-
-        io.to(roomName).emit('music state changed', {
-          videoId: playlist.currentSong.videoId,
-          position,
-          isPlaying: false,
-          timestamp: new Date()
-        });
-
-        const message = await Message.create({
-          room: roomName,
-          user: 'System',
-          text: '⏸️ Music paused'
-        });
-
-        io.to(roomName).emit('chat message', message);
+        if (!playlist) return;
+    
+        if (playlist.currentSong) {
+          playlist.currentSong.isPlaying = false;
+          playlist.currentSong.position = position;
+          await playlist.save();
+    
+          io.to(roomName).emit('music state changed', {
+            videoId,
+            isPlaying: false,
+            position,
+            timestamp: new Date()
+          });
+    
+          const message = await Message.create({
+            room: roomName,
+            user: 'System',
+            text: '⏸️ Music paused'
+          });
+    
+          io.to(roomName).emit('chat message', message);
+        }
       } catch (error) {
         console.error('Error pausing music:', error);
       }
