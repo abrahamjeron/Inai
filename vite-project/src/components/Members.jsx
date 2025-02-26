@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 
-function RoomMembers({ roomId }) {
+function RoomMembers({ roomId,leaveRoom }) {
     const [members, setMembers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
@@ -38,6 +38,12 @@ function RoomMembers({ roomId }) {
             ) : (
                 <p>No members in this room</p>
             )}
+            <button
+            onClick={leaveRoom}
+            className="bg-red-500 text-black w-[60px] p-2 mr-2 rounded"
+          >
+            Leave Room
+          </button>
         </div>
     );
 }
