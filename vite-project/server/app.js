@@ -8,6 +8,7 @@ import authRoutes from "./routes/authRoutes.js";
 import roomRoutes from "./routes/roomRoutes.js";
 import playlistRoutes from "./routes/playlistRoutes.js";
 import messageRoutes from "./routes/messageRoutes.js";
+import userRoutes from "./routes/userRoutes.js"
 import { setupSocketHandlers } from "./socket/socketHandlers.js";
 import passport from "./middleware/passportConfig.js";
 
@@ -45,6 +46,7 @@ app.use("/auth", authRoutes);
 app.use("/rooms", roomRoutes);
 app.use("/playlist", playlistRoutes);
 app.use("/messages", messageRoutes);
+app.use("/users",userRoutes)
 
 // Database Connection
 connectDB();
