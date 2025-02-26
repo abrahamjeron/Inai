@@ -80,11 +80,12 @@ function Home({ user, setUser }) {
       console.error("Error creating room:", error);
     }
   };
-
+// verfies the room joining
   const handleJoinRoom = async (room) => {
     if (room.isPrivate) {
-      setSelectedRoom(room);
-      setShowPasswordModal(true);
+        console.log("private room clicked")
+        setShowPasswordModal(true);
+        setSelectedRoom(room);   
     } else {
       joinRoom(room);
     }
@@ -152,6 +153,15 @@ function Home({ user, setUser }) {
             <RoomMembers roomId={currentRoom._id} />
         )}
         </div>
+       
+      </div>
+    );
+  }
+
+  return (
+
+    <div>
+        {/* <Header/> */}
         {showPasswordModal && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
             <div className="bg-white p-4 rounded-lg w-80">
@@ -186,14 +196,6 @@ function Home({ user, setUser }) {
             </div>
           </div>
         )}
-      </div>
-    );
-  }
-
-  return (
-
-    <div>
-        {/* <Header/> */}
       <div className="flex justify-center">
         <div className="bg-black rounded-2xl w-[93%] mt-6 h-auto">
           <div className="flex mt-10 items-center justify-center">
