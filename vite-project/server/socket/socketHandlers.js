@@ -128,6 +128,7 @@ export const setupSocketHandlers = (io) => {
 
     // Play music
     socket.on('play music', async ({ roomName, videoId }) => {
+      console.log( roomName, videoId)
       try {
         const room = await Room.findOne({ name: roomName });
         if (!room) return;
@@ -156,6 +157,7 @@ export const setupSocketHandlers = (io) => {
           user: 'System',
           text: '▶️ Playing music'
         });
+        console.log(message)
     
         io.to(roomName).emit('chat message', message);
       } catch (error) {
