@@ -9,11 +9,11 @@ const Card = ({ children, className }) => {
 };
 
 const CardHeader = ({ children }) => {
-  return <div className="border-b pb-2 mb-2 font-semibold">{children}</div>;
+  return <div className="border-b mr-[50px] pb-2 mb-2 ml-[50px] font-bold ">{children}</div>;
 };
 
 const CardTitle = ({ children }) => {
-  return <h2 className="text-lg font-bold">{children}</h2>;
+  return <h2 className="text-lg text-[1.5rem] font-bold">{children}</h2>;
 };
 
 const CardContent = ({ children }) => {
