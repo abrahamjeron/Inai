@@ -13,13 +13,13 @@ function ChatRoom({ room, user, socket, leaveRoom, isPlaying }) {
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
-    if (selectedVideoId) {
+    if (selectedVideoId && room.name) {
       socket.emit('set current video', {
         roomName: room.name,
         videoId: selectedVideoId,
       });
     }
-  }, [selectedVideoId, socket, room.name]);
+  }, [selectedVideoId, room.name, socket]);
 
   useEffect(() => {
     fetchMessages();
@@ -44,6 +44,7 @@ function ChatRoom({ room, user, socket, leaveRoom, isPlaying }) {
     });
 
     socket.on('current video changed', ({ videoId }) => {
+      console.log(videoId) //this is working only on certain rooms not for all rooms
       setSelectedVideoId(videoId);
     });
 
@@ -120,11 +121,8 @@ function ChatRoom({ room, user, socket, leaveRoom, isPlaying }) {
 
   return (
     <div className="h-full flex flex-col">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-2xl font-bold">{room.name}</h2>
-      </div>
       <div className="flex">
-        <RoomMembers roomId={room._id} leaveRoom={leaveRoom} />
+        <RoomMembers roomId={room._id} leaveRoom={leaveRoom} roomName={room.name} currentuserName={user.username } currentuserAvt={user.avatar} />
 
         <div className="flex flex-col w-full">
           <div className="flex">
