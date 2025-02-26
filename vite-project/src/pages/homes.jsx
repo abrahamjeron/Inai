@@ -133,27 +133,24 @@ function Home({ user, setUser }) {
 
   if (showRooms || currentRoom) {
     return (
-      <div className="flex h-screen">
-        <div className="w-3/4 p-4">
+      <div className="">
+        <div className="">
           {currentRoom ? (
+            <div className="ml-[30px]">
             <ChatRoom
               room={currentRoom}
               user={user}
               socket={socket}
               leaveRoom={leaveRoom}
             />
+            </div>
+            
           ) : (
             <div className="flex items-center justify-center h-full">
               <p className="text-gray-500 text-lg">Select a room to start chatting</p>
             </div>
           )}
         </div>
-        <div className="w-1/4 p-4">
-        {currentRoom && (
-            <RoomMembers roomId={currentRoom._id} />
-        )}
-        </div>
-       
       </div>
     );
   }
@@ -248,42 +245,43 @@ function Home({ user, setUser }) {
         </div>
       </div>
       <div className="mb-4">
-            <div className="relative">
+
+          </div>
+      <Card>
+            <CardHeader>
+              <CardTitle>Join the Available Rooms</CardTitle>
+            </CardHeader>
+            <CardContent>
+            <div className="relative w-[350px]  ml-[60px] mt-[20px] mb-[20px]">
               <input
                 type="text"
                 placeholder="Search rooms..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full p-2 pr-10 rounded border"
+                className="w-[350px] p-2 pr-10 rounded-3xl border"
               />
               <Search className="absolute right-3 top-2.5 text-gray-400" size={20} />
             </div>
-          </div>
-      <Card>
-            <CardHeader>
-              <CardTitle>Available Rooms</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
+            <div className=" grid grid-cols-1 sm:grid-cols-4 lg:grid-cols-4 gap-4 ml-[50px]">
                 {filteredRooms.map((room) => (
                   <div
                     key={room._id}
-                    className="p-3 bg-white rounded shadow hover:shadow-md transition-shadow"
+                    className=" group p-2 bg-white hover:bg-black w-[350px] h-[70px] rounded-3xl shadow hover:shadow-md transition-shadow"
                   >
                     <div className="flex items-center justify-between">
-                      <div>
-                        <span className="font-medium">{room.name}</span>
-                        <span className="ml-2">
+                      <div className="flex flex-col ml-4">
+                        <span className="font-bold text-[1.2rem]  group-hover:text-white ">{room.name}</span>
+                        <span className="">
                           {room.isPrivate ? 
-                            <span className="text-red-500">🔒 Private</span> : 
-                            <span className="text-green-500">🌐 Public</span>
+                            <span className="text-gray-400 text-[0.8rem]">Private</span> : 
+                            <span className="text-gray-400 text-[0.8rem]">Public</span>
                           }
                         </span>
                       </div>
                       {currentRoom?._id !== room._id && (
                         <button
                           onClick={() => handleJoinRoom(room)}
-                          className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+                          className="px-3 py-1 bg-black mr-3 text-white rounded-full hover:bg-[#F6F7F9] group-hover:text-black group-hover:bg-[#ffff]"
                         >
                           Join
                         </button>

@@ -27,7 +27,7 @@ function VideoSearch({ onVideoSelect }) {
     };
 
     return (
-        <div className="w-full bg-[#F6F7F9] rounded-2xl  max-w-2xl p-4">
+        <div className="w-[400px] bg-[#F6F7F9] rounded-2xl  max-w-2xl p-4">
             {/* Search Box */}
             <form onSubmit={handleSearch} className="flex items-center border border-gray-300 rounded-3xl shadow-sm overflow-hidden">
                 <input
