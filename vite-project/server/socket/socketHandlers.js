@@ -126,44 +126,45 @@ export const setupSocketHandlers = (io) => {
       }
     });
 
-    // Play music
-    socket.on('play music', async ({ roomName, videoId }) => {
-      console.log( roomName, videoId)
-      try {
-        const room = await Room.findOne({ name: roomName });
-        if (!room) return;
     
-        const playlist = await Playlist.findOne({ room: roomName });
-        if (!playlist) return;
-    
-        playlist.currentSong = {
-          videoId,
-          isPlaying: true,
-          position: 0,
-          startedAt: new Date()
-        };
-    
-        await playlist.save();
-    
-        io.to(roomName).emit('music state changed', {
-          videoId,
-          isPlaying: true,
-          position: 0,
-          timestamp: new Date()
-        });
-    
-        const message = await Message.create({
-          room: roomName,
-          user: 'System',
-          text: '▶️ Playing music'
-        });
-        console.log(message)
-    
-        io.to(roomName).emit('chat message', message);
-      } catch (error) {
-        console.error('Error playing music:', error);
-      }
+// Play music event handler
+socket.on('play music', async ({ roomName, videoId }) => {
+  try {
+    const room = await Room.findOne({ name: roomName });
+    if (!room) return;
+
+    const playlist = await Playlist.findOne({ room: roomName });
+    if (!playlist) return;
+
+    playlist.currentSong = {
+      videoId,
+      isPlaying: true,
+      position: 0,
+      startedAt: new Date()
+    };
+
+    await playlist.save();
+
+    // Use the same event name as the client is listening for
+    io.to(roomName).emit('play music', {
+      roomName,
+      videoId,
+      isPlaying: true,
+      position: 0,
+      timestamp: new Date()
     });
+
+    const message = await Message.create({
+      room: roomName,
+      user: 'System',
+      text: '▶️ Playing music'
+    });
+
+    io.to(roomName).emit('chat message', message);
+  } catch (error) {
+    console.error('Error playing music:', error);
+  }
+});
     
     // to set current
     socket.on('set current video', async ({ roomName, videoId }) => {
@@ -184,36 +185,41 @@ export const setupSocketHandlers = (io) => {
     });
     
 
-    // Pause music
-    socket.on('pause music', async ({ roomName, videoId, position }) => {
-      try {
-        const playlist = await Playlist.findOne({ room: roomName });
-        if (!playlist) return;
+// Pause music event handler
+socket.on('pause music', async ({ roomName, videoId }) => {
+  try {
+    const playlist = await Playlist.findOne({ room: roomName });
+    if (!playlist) return;
     
-        if (playlist.currentSong) {
-          playlist.currentSong.isPlaying = false;
-          playlist.currentSong.position = position;
-          await playlist.save();
-    
-          io.to(roomName).emit('music state changed', {
-            videoId,
-            isPlaying: false,
-            position,
-            timestamp: new Date()
-          });
-    
-          const message = await Message.create({
-            room: roomName,
-            user: 'System',
-            text: '⏸️ Music paused'
-          });
-    
-          io.to(roomName).emit('chat message', message);
-        }
-      } catch (error) {
-        console.error('Error pausing music:', error);
-      }
-    });
+    if (playlist.currentSong) {
+      playlist.currentSong.isPlaying = false;
+      await playlist.save();
+      
+      // It seems 'position' is undefined in your original code
+      // You might need to get the current position from the client
+      // or track it on the server
+      const position = playlist.currentSong.position || 0;
+      
+      io.to(roomName).emit('pause music', {
+        roomName,
+        videoId,
+        isPlaying: false,
+        position,
+        timestamp: new Date()
+      });
+      
+      const message = await Message.create({
+        room: roomName,
+        user: 'System',
+        text: '⏸️ Music paused'
+      });
+      
+      io.to(roomName).emit('chat message', message);
+    }
+  } catch (error) {
+    console.error('Error pausing music:', error);
+  }
+});
 
     // Skip music
     socket.on('skip music', async ({ roomName }) => {
