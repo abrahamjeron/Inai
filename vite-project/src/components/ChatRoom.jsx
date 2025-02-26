@@ -3,6 +3,8 @@ import axios from 'axios';
 import VideoPlayer from "../components/videoPlayer";
 import SearchBox from '../components/searchBox';
 import RoomMembers from "../components/Members";
+import Sent from "../assets/Sent.svg"
+
 
 function ChatRoom({ room, user, socket, leaveRoom, isPlaying }) {
   const [message, setMessage] = useState('');
@@ -121,9 +123,9 @@ function ChatRoom({ room, user, socket, leaveRoom, isPlaying }) {
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-2xl font-bold">{room.name}</h2>
       </div>
-      <div className='flex'>
-        <RoomMembers roomId={room._id} />
-        
+      <div className="flex">
+        <RoomMembers roomId={room._id} leaveRoom={leaveRoom} />
+
         <div className="flex flex-col w-full">
           <div className="flex">
             <VideoPlayer
@@ -133,87 +135,107 @@ function ChatRoom({ room, user, socket, leaveRoom, isPlaying }) {
             />
             <SearchBox onVideoSelect={setSelectedVideoId} />
           </div>
-  
-          <div className="bg-amber-100 rounded-2xl w-[700px] ml-[15px] overflow-y-scroll h-[500px] mb-2 space-y-2">
-            {messages.map((msg) => (
-              <div
-                key={msg._id}
-                className={`p-2 rounded ${
-                  msg.user === user.username
-                    ? 'bg-blue-100 text-right'
-                    : 'bg-gray-100'
-                }`}
-              >
-                <div className="flex justify-between items-start">
-                  <span className="font-bold">{msg.user}: </span>
-                  {msg.user === user.username && (
-                    <button
-                      onClick={() => deleteMessage(msg._id)}
-                      className="text-red-500"
+
+          <div className="bg-[#F6F7F9] rounded-2xl w-[700px] ml-[15px] overflow-y-scroll h-[250px] mb-2 space-y-1 p-4">
+            {messages
+              .filter((msg) => msg.user !== 'System')
+              .map((msg) => (
+                <div
+                  key={msg._id}
+                  className={`group p-2 rounded flex flex-col ${
+                    msg.user === user.username
+                      ? 'items-end'
+                      : 'items-start'
+                  }`}
+                >
+                  <span
+                    className={`text-[0.9rem] ${
+                      msg.user === user.username
+                        ? 'text-right text-black'
+                        : 'text-left text-gray-600'
+                    }`}
+                  >
+                    {msg.user}:
+                  </span>
+
+                  <div
+                    className={`inline-block max-w-[70%] py-2 px-3 rounded-2xl break-words ${
+                      msg.user === user.username
+                        ? 'bg-black text-white ml-auto text-right'
+                        : 'bg-white text-black mr-auto text-left'
+                    }`}
+                  >
+                    <p className="text-[1rem]">{msg.text}</p>
+                  </div>
+
+                  {msg.file && (
+                    <a
+                      href={`http://localhost:3001/uploads/${msg.file}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-500"
                     >
-                      Delete
+                      Attached File
+                    </a>
+                  )}
+
+                  <div className="flex space-x-2 mt-2 group-hover:flex">
+                    <button
+                      onClick={() => reactToMessage(msg._id, '👍')}
+                      className="text-sm"
+                    >
+                      👍
                     </button>
+                    <button
+                      onClick={() => reactToMessage(msg._id, '❤️')}
+                      className="text-sm"
+                    >
+                      ❤️
+                    </button>
+                    <button
+                      onClick={() => reactToMessage(msg._id, '😂')}
+                      className="text-sm"
+                    >
+                      😂
+                    </button>
+                    {msg.user === user.username && (
+                      <button
+                        onClick={() => deleteMessage(msg._id)}
+                        className="text-[0.9rem] text-red-500 mt-1"
+                      >
+                        Delete
+                      </button>
+                    )}
+                  </div>
+
+                  {msg.reactions && msg.reactions.length > 0 && (
+                    <div className="text-sm text-gray-500">
+                      {msg.reactions
+                        .map((r) => `${r.user[0]}: ${r.reaction}`)
+                        .join(', ')}
+                    </div>
                   )}
                 </div>
-                <p>{msg.text}</p>
-                {msg.file && (
-                  <a
-                    href={`http://localhost:3001/uploads/${msg.file}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-500"
-                  >
-                    Attached File
-                  </a>
-                )}
-                <div className="flex space-x-2 mt-2">
-                  <button
-                    onClick={() => reactToMessage(msg._id, '👍')}
-                    className="text-sm"
-                  >
-                    👍
-                  </button>
-                  <button
-                    onClick={() => reactToMessage(msg._id, '❤️')}
-                    className="text-sm"
-                  >
-                    ❤️
-                  </button>
-                  <button
-                    onClick={() => reactToMessage(msg._id, '😂')}
-                    className="text-sm"
-                  >
-                    😂
-                  </button>
-                </div>
-                {msg.reactions && msg.reactions.length > 0 && (
-                  <div className="text-sm text-gray-500">
-                    Reactions:{' '}
-                    {msg.reactions
-                      .map((r) => `${r.user}: ${r.reaction}`)
-                      .join(', ')}
-                  </div>
-                )}
-              </div>
-            ))}
+              ))}
+
             <div ref={messagesEndRef} />
+            <form onSubmit={sendMessage} className="flex w-full mt-2">
+              <input
+                type="text"
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                className="w-full p-3  border border-gray-300 bg-white rounded-3xl focus:outline-none focus:ring-1"
+                placeholder="Type a message..."
+              />
+              <button
+                type="submit"
+                className="bg-black relative  p-4 rounded-4xl"
+              >
+                <img src={Sent} alt="" />
+              </button>
+            </form>
+
           </div>
-  
-          <form onSubmit={sendMessage} className="flex">
-            <input
-              type="text"
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              className="flex-grow p-2 border rounded-l"
-              placeholder="Type a message..."
-            />
-            <button type="submit" className="bg-blue-500 text-white p-2 rounded-r">
-              Send
-            </button>
-          </form>
-          <button onClick={leaveRoom} className="bg-red-500 text-black w-[60px] p-2 mr-2 rounded">
-            Leave Room
-          </button>
         </div>
       </div>
     </div>
