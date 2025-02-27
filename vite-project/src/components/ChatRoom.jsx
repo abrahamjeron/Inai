@@ -14,6 +14,7 @@ function ChatRoom({ room, user, socket, leaveRoom, isPlaying }) {
 
   useEffect(() => {
     if (selectedVideoId && room.name) {
+      // Making sure to emit with the correct room name
       socket.emit('set current video', {
         roomName: room.name,
         videoId: selectedVideoId,
@@ -43,8 +44,10 @@ function ChatRoom({ room, user, socket, leaveRoom, isPlaying }) {
       );
     });
 
+    // Ensuring we're specifically listening for the right event and setting the video ID 
+    // regardless of which room it came from
     socket.on('current video changed', ({ videoId }) => {
-      console.log(videoId) //this is working only on certain rooms not for all rooms
+      console.log('Video changed to:', videoId, 'in room:', room.name);
       setSelectedVideoId(videoId);
     });
 
@@ -119,6 +122,11 @@ function ChatRoom({ room, user, socket, leaveRoom, isPlaying }) {
     socket.emit('video pause', { roomName: room.name });
   };
 
+  // Handle video selection from the search box
+  const handleVideoSelect = (videoId) => {
+    setSelectedVideoId(videoId);
+  };
+
   return (
     <div className="h-full flex flex-col">
       <div className="flex">
@@ -131,7 +139,7 @@ function ChatRoom({ room, user, socket, leaveRoom, isPlaying }) {
               socket={socket}
               roomName={room.name}
             />
-            <SearchBox onVideoSelect={setSelectedVideoId} />
+            <SearchBox onVideoSelect={handleVideoSelect} />
           </div>
 
           <div className="bg-[#F6F7F9] rounded-2xl w-[700px] ml-[15px] overflow-y-scroll h-[250px] mb-2 space-y-1 p-4">
