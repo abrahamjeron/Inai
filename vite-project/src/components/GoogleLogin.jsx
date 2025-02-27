@@ -30,7 +30,7 @@ function GoogleLogin({ setUser }) {
   return (
     <button
       onClick={handleGoogleLogin}
-      className="w-full flex items-center justify-center bg-white border border-gray-300 p-2 rounded text-gray-700 hover:bg-gray-100 mt-3"
+      className="w-[80%] ml-[40px] flex items-center justify-center rounded-3xl hover:bg-[#EEF1F0]  p-2  text-black  bg-gray-100 "
     >
       <svg viewBox="0 0 24 24" width="20" height="20" className="mr-2" xmlns="http://www.w3.org/2000/svg">
         <g transform="matrix(1, 0, 0, 1, 27.009001, -39.238998)">

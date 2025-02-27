@@ -42,17 +42,20 @@ function App() {
             user ? (
               <Navigate to="/" />
             ) : (
-              <div className="flex h-screen">
-                <div className="w-1/2 p-8">
+              <div className="">
+                <div className="">
                   <Login setUser={setUser} />
                 </div>
-                <div className="w-1/2 p-8">
+                {/* <div className="w-1/2 p-8">
                   <Register />
-                </div>
+                </div> */}
               </div>
             )
           } 
         />
+
+      <Route path="/signup" element={<Register setUser={setUser} />} />  
+
         <Route 
           path="/room" 
           element={
