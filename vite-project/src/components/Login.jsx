@@ -22,7 +22,7 @@ function Login({ setUser }) {
       try {
         const parsedUser = JSON.parse(storedUser);
         axios
-          .get('http://localhost:3001/api/current-user', {
+          .get('https://inai-0og5.onrender.com/api/current-user', {
             headers: { Authorization: parsedUser.token }
           })
           .then(() => {
@@ -59,7 +59,7 @@ function Login({ setUser }) {
     }
 
     try {
-      const response = await axios.post('http://localhost:3001/auth/login', { email, password });
+      const response = await axios.post('https://inai-0og5.onrender.com/auth/login', { email, password });
       const userData = {
         email: response.data.user.email,
         avatar: response.data.user.avatar,

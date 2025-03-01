@@ -66,7 +66,7 @@ function ChatRoom({ room, user, socket, leaveRoom, isPlaying }) {
   const fetchMessages = async () => {
     try {
       const response = await axios.get(
-        `http://localhost:3001/messages/${room.name}`,
+        `https://inai-0og5.onrender.com/messages/${room.name}`,
         {
           headers: { Authorization: user.token },
         }
@@ -97,7 +97,7 @@ function ChatRoom({ room, user, socket, leaveRoom, isPlaying }) {
 
   const deleteMessage = async (messageId) => {
     try {
-      await axios.delete(`http://localhost:3001/messages/${messageId}`, {
+      await axios.delete(`https://inai-0og5.onrender.com/messages/${messageId}`, {
         headers: { Authorization: user.token },
       });
       socket.emit('delete message', messageId);
@@ -176,7 +176,7 @@ function ChatRoom({ room, user, socket, leaveRoom, isPlaying }) {
 
                   {msg.file && (
                     <a
-                      href={`http://localhost:3001/uploads/${msg.file}`}
+                      href={`https://inai-0og5.onrender.com/uploads/${msg.file}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-blue-500"

@@ -3,7 +3,7 @@ import axios from 'axios';
 
 function GoogleLogin({ setUser }) {
   const handleGoogleLogin = () => {
-    window.location.href = 'http://localhost:3001/auth/google';
+    window.location.href = 'https://inai-0og5.onrender.com/auth/google';
   };
 
   // Handle authentication success redirect
