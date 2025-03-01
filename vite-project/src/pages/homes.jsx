@@ -11,7 +11,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '../components/Card';
 import landingimg from "../assets/landingimg.svg";
 
 // Initialize socket connection
-const socket = io("https://inai-0og5.onrender.com", {
+const socket = io(import.meta.env.VITE_BACKEND_URL, {
   transports: ["websocket"],
   withCredentials: true,
 });
@@ -33,6 +33,7 @@ function Home({ user, setUser }) {
   const [selectedRoom, setSelectedRoom] = useState(null);
   const [error, setError] = useState("");
   const [showRooms, setShowRooms] = useState(false);
+  const backend_url=import.meta.env.VITE_BACKEND_URL
 
   useEffect(() => {
     if (user) {
@@ -42,7 +43,7 @@ function Home({ user, setUser }) {
 
   const fetchRooms = async () => {
     try {
-      const response = await axios.get("https://inai-0og5.onrender.com/rooms", {
+      const response = await axios.get(`${backend_url}/rooms`, {
         headers: { Authorization: user?.token },
       });
       setRooms(response.data);
@@ -68,7 +69,7 @@ function Home({ user, setUser }) {
       }
 
       const response = await axios.post(
-        "https://inai-0og5.onrender.com/rooms",
+        `${backend_url}/rooms`,
         { name: roomName, isPrivate, password },
         { headers: { Authorization: user.token } }
       );
@@ -95,7 +96,7 @@ function Home({ user, setUser }) {
     try {
       if (room.isPrivate) {
         await axios.post(
-          `https://inai-0og5.onrender.com/rooms/${room._id}/join`,
+          `${backend_url}/rooms/${room._id}/join`,
           { password },
           { headers: { Authorization: user.token } }
         );

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+const backend_url = import.meta.env.VITE_BACKEND_URL
 
 function RoomMembers({ roomId, leaveRoom, roomName, currentuserName,currentuserAvt }) {
     const [members, setMembers] = useState([]);
@@ -8,14 +9,15 @@ function RoomMembers({ roomId, leaveRoom, roomName, currentuserName,currentuserA
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
 
+
     useEffect(() => {
         const fetchRoomData = async () => {
             try {
-                const response = await axios.get(`https://inai-0og5.onrender.com/rooms/${roomId}`);
+                const response = await axios.get(`${backend_url}/rooms/${roomId}`);
                 const roomData = response.data;
 
                 // Fetch the creator's data
-                const creatorResponse = await axios.get(`https://inai-0og5.onrender.com/users/${roomData.creator}`);
+                const creatorResponse = await axios.get(`${backend_url}/users/${roomData.creator}`);
                 setCreatorData(creatorResponse.data);
 
                 // Filter out null/undefined members and exclude creator
@@ -38,7 +40,7 @@ function RoomMembers({ roomId, leaveRoom, roomName, currentuserName,currentuserA
             try {
                 const memberDetails = await Promise.all(
                     members.map(async (member) => {
-                        const response = await axios.get(`https://inai-0og5.onrender.com/users/${member}`);
+                        const response = await axios.get(`${backend_url}/users/${member}`);
                         return response.data;
                     })
                 );

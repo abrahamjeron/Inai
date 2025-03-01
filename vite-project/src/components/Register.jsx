@@ -7,18 +7,18 @@ import Music2 from '../assets/Music.png'
 import Music3 from '../assets/Music3.svg'
 import S1 from '../assets/S1.svg'
 import GoogleLogin from './GoogleLogin';
+const backend_url = import.meta.env.VITE_BACKEND_URL
 
 function Register({setUser}) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     try {
-      await axios.post('https://inai-0og5.onrender.com/auth/register', { username, password, email });
+      await axios.post(`${backend_url}/auth/register`, { username, password, email });
       alert('User registered successfully');
       setUsername('');
       setPassword('');

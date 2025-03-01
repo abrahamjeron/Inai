@@ -4,6 +4,10 @@ import jwt from "jsonwebtoken";
 import User from "../models/User.js";
 import bcrypt from "bcryptjs";
 import passport from '../middleware/passportConfig.js'
+import dotenv from "dotenv";
+
+dotenv.config();
+const frontend_url = process.env.FRONT_END_LINK
 
 const router = express.Router();
 
@@ -14,7 +18,7 @@ router.get('/google/callback',
   passport.authenticate('google', { failureRedirect: '/login' }),
   (req, res) => {
     const token = jwt.sign({ username: req.user.username }, 'your_jwt_secret');
-    res.redirect(`https://inai-eight.vercel.app/auth-success?token=${token}&username=${req.user.username}&email=${req.user.email}&avatar=${req.user.avatar || ''}`);
+    res.redirect(`${frontend_url}/auth-success?token=${token}&username=${req.user.username}&email=${req.user.email}&avatar=${req.user.avatar || ''}`);
   });
 
 // Register User

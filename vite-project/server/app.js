@@ -11,12 +11,15 @@ import messageRoutes from "./routes/messageRoutes.js";
 import userRoutes from "./routes/userRoutes.js"
 import { setupSocketHandlers } from "./socket/socketHandlers.js";
 import passport from "./middleware/passportConfig.js";
+import dotenv from "dotenv";
 
+dotenv.config();
+const frontend_url = process.env.FRONT_END_LINK
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "https://inai-eight.vercel.app",
+    origin: frontend_url,
     methods: ["GET", "POST"],
     credentials: true,
   },
@@ -27,7 +30,7 @@ const io = new Server(server, {
 export { io };
 
 // Middleware
-app.use(cors({ origin: "https://inai-eight.vercel.app", credentials: true }));
+app.use(cors({ origin: frontend_url, credentials: true }));
 app.use(express.json());
 app.use(
   session({

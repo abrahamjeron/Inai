@@ -4,13 +4,14 @@ import VideoPlayer from "../components/videoPlayer";
 import SearchBox from '../components/searchBox';
 import RoomMembers from "../components/Members";
 import Sent from "../assets/Sent.svg"
-
+const backend_url = import.meta.env.VITE_BACKEND_URL
 
 function ChatRoom({ room, user, socket, leaveRoom, isPlaying }) {
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState([]);
   const [selectedVideoId, setSelectedVideoId] = useState('');
   const messagesEndRef = useRef(null);
+  const backend_url = import.meta.env.VITE_BACKEND_URL
 
   useEffect(() => {
     if (selectedVideoId && room.name) {
@@ -66,7 +67,7 @@ function ChatRoom({ room, user, socket, leaveRoom, isPlaying }) {
   const fetchMessages = async () => {
     try {
       const response = await axios.get(
-        `https://inai-0og5.onrender.com/messages/${room.name}`,
+        `${backend_url}/messages/${room.name}`,
         {
           headers: { Authorization: user.token },
         }
@@ -97,7 +98,7 @@ function ChatRoom({ room, user, socket, leaveRoom, isPlaying }) {
 
   const deleteMessage = async (messageId) => {
     try {
-      await axios.delete(`https://inai-0og5.onrender.com/messages/${messageId}`, {
+      await axios.delete(`${backend_url}/messages/${messageId}`, {
         headers: { Authorization: user.token },
       });
       socket.emit('delete message', messageId);
@@ -176,7 +177,7 @@ function ChatRoom({ room, user, socket, leaveRoom, isPlaying }) {
 
                   {msg.file && (
                     <a
-                      href={`https://inai-0og5.onrender.com/uploads/${msg.file}`}
+                      href={`${backend_url}/uploads/${msg.file}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-blue-500"
