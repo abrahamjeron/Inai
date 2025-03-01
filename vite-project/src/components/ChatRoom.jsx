@@ -11,7 +11,6 @@ function ChatRoom({ room, user, socket, leaveRoom, isPlaying }) {
   const [messages, setMessages] = useState([]);
   const [selectedVideoId, setSelectedVideoId] = useState('');
   const messagesEndRef = useRef(null);
-  const backend_url = import.meta.env.VITE_BACKEND_URL
 
   useEffect(() => {
     if (selectedVideoId && room.name) {
