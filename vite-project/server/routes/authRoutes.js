@@ -14,7 +14,7 @@ router.get('/google/callback',
   passport.authenticate('google', { failureRedirect: '/login' }),
   (req, res) => {
     const token = jwt.sign({ username: req.user.username }, 'your_jwt_secret');
-    res.redirect(`https://inai-1.onrender.com/auth-success?token=${token}&username=${req.user.username}&email=${req.user.email}&avatar=${req.user.avatar || ''}`);
+    res.redirect(`https://inai-eight.vercel.app/auth-success?token=${token}&username=${req.user.username}&email=${req.user.email}&avatar=${req.user.avatar || ''}`);
   });
 
 // Register User
