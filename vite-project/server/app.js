@@ -16,7 +16,7 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:5173",
+    origin: "https://inai-1.onrender.com",
     methods: ["GET", "POST"],
     credentials: true,
   },
@@ -27,7 +27,7 @@ const io = new Server(server, {
 export { io };
 
 // Middleware
-app.use(cors({ origin: "http://localhost:5173", credentials: true }));
+app.use(cors({ origin: "https://inai-1.onrender.com", credentials: true }));
 app.use(express.json());
 app.use(
   session({
