@@ -9,7 +9,7 @@ const backend_url=process.env.BACKEND_URL
 
 const GOOGLE_CLIENT_ID = "94490572892-vnb75eeprlnokfied1t3pjaneotj32lg.apps.googleusercontent.com";
 const GOOGLE_CLIENT_SECRET = "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";
-const CALLBACK_URL = `${backend_url}/auth/google/callback`;
+const CALLBACK_URL = `https://inai-0og5.onrender.com/auth/google/callback`;
 
 passport.serializeUser((user, done) => {
   done(null, user.id);
