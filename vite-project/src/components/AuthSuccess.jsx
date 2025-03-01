@@ -15,7 +15,7 @@ function AuthSuccess() {
     if (token && username) {
       const userData = { username, email, avatar, token };
       localStorage.setItem('user', JSON.stringify(userData));
-      navigate('/inai');
+      navigate('/');
     } else {
       navigate('/login');
     }
