@@ -11,7 +11,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '../components/Card';
 import landingimg from "../assets/landingimg.svg";
 
 // Initialize socket connection
-const socket = io("http://localhost:3001", {
+const socket = io("https://inai-0og5.onrender.com", {
   transports: ["websocket"],
   withCredentials: true,
 });
@@ -42,7 +42,7 @@ function Home({ user, setUser }) {
 
   const fetchRooms = async () => {
     try {
-      const response = await axios.get("http://localhost:3001/rooms", {
+      const response = await axios.get("https://inai-0og5.onrender.com/rooms", {
         headers: { Authorization: user?.token },
       });
       setRooms(response.data);
@@ -68,7 +68,7 @@ function Home({ user, setUser }) {
       }
 
       const response = await axios.post(
-        "http://localhost:3001/rooms",
+        "https://inai-0og5.onrender.com/rooms",
         { name: roomName, isPrivate, password },
         { headers: { Authorization: user.token } }
       );
@@ -95,7 +95,7 @@ function Home({ user, setUser }) {
     try {
       if (room.isPrivate) {
         await axios.post(
-          `http://localhost:3001/rooms/${room._id}/join`,
+          `https://inai-0og5.onrender.com/rooms/${room._id}/join`,
           { password },
           { headers: { Authorization: user.token } }
         );

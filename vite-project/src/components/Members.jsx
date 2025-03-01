@@ -11,11 +11,11 @@ function RoomMembers({ roomId, leaveRoom, roomName, currentuserName,currentuserA
     useEffect(() => {
         const fetchRoomData = async () => {
             try {
-                const response = await axios.get(`http://localhost:3001/rooms/${roomId}`);
+                const response = await axios.get(`https://inai-0og5.onrender.com/rooms/${roomId}`);
                 const roomData = response.data;
 
                 // Fetch the creator's data
-                const creatorResponse = await axios.get(`http://localhost:3001/users/${roomData.creator}`);
+                const creatorResponse = await axios.get(`https://inai-0og5.onrender.com/users/${roomData.creator}`);
                 setCreatorData(creatorResponse.data);
 
                 // Filter out null/undefined members and exclude creator
@@ -38,7 +38,7 @@ function RoomMembers({ roomId, leaveRoom, roomName, currentuserName,currentuserA
             try {
                 const memberDetails = await Promise.all(
                     members.map(async (member) => {
-                        const response = await axios.get(`http://localhost:3001/users/${member}`);
+                        const response = await axios.get(`https://inai-0og5.onrender.com/users/${member}`);
                         return response.data;
                     })
                 );

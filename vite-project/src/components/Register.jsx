@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 import Logo from '../assets/logo.png'
-import Music1 from "../assets/Music1.svg"
+// import Music1 from "../assets/Music1.svg"
 import Music2 from '../assets/Music.png'
 import Music3 from '../assets/Music3.svg'
 import S1 from '../assets/S1.svg'
@@ -18,7 +18,7 @@ function Register({setUser}) {
     e.preventDefault();
     setLoading(true);
     try {
-      await axios.post('http://localhost:3001/auth/register', { username, password, email });
+      await axios.post('https://inai-0og5.onrender.com/auth/register', { username, password, email });
       alert('User registered successfully');
       setUsername('');
       setPassword('');
@@ -33,7 +33,7 @@ return(
   <div className="flex">
   <div className="aspect-square w-full max-w-full mx-auto relative">
     <div className="absolute top-0 left-0 w-full h-full flex z-10">
-      <img src={Music1} className="h-[200px] relative m-4 mt-[60px]" alt="" />
+      {/* <img src={Music1} className="h-[200px] relative m-4 mt-[60px]" alt="" /> */}
       <img src={Music3} className="h-[500px] absolute top-[400px] right-[0px]" alt="" />
       <img src={S1} className="absolute left-[400px] top-[380px] h-[230px] w-auto" alt="" />
       <img src={S1} className="absolute left-[407px] top-[549px] h-[230px] w-auto scale-x-[-1]" alt="" />
