@@ -40,7 +40,7 @@ const Header = () => {
                   className='h-10 w-10 top-2 relative rounded-full object-cover '
                 />
               </div>
-            {/* <button
+            <button
               onClick={() => {
                 localStorage.removeItem('user');
                 setUser(null);
@@ -49,7 +49,7 @@ const Header = () => {
               className="bg-red-600 px-2 py-1 rounded"
             >
               Logout
-            </button> */}
+            </button>
           </>
         ) : (
           <>

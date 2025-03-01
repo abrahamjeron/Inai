@@ -7,6 +7,8 @@ import Music2 from '../assets/Music.png'
 import Music3 from '../assets/Music3.svg'
 import S1 from '../assets/S1.svg'
 import GoogleLogin from './GoogleLogin';
+const backend_url = import.meta.env.VITE_BACKEND_URL
+
 function Login({ setUser }) {
   const [formData, setFormData] = useState({
     email: '',
@@ -15,6 +17,7 @@ function Login({ setUser }) {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
+
   useEffect(() => {
     // Check for stored user on component mount
     const storedUser = localStorage.getItem('user');
@@ -22,7 +25,7 @@ function Login({ setUser }) {
       try {
         const parsedUser = JSON.parse(storedUser);
         axios
-          .get('https://inai-0og5.onrender.com/api/current-user', {
+          .get(`${backend_url}/api/current-user`, {
             headers: { Authorization: parsedUser.token }
           })
           .then(() => {
@@ -59,7 +62,7 @@ function Login({ setUser }) {
     }
 
     try {
-      const response = await axios.post('https://inai-0og5.onrender.com/auth/login', { email, password });
+      const response = await axios.post(`${backend_url}/auth/login`, { email, password });
       const userData = {
         email: response.data.user.email,
         avatar: response.data.user.avatar,

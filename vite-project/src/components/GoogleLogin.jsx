@@ -1,9 +1,11 @@
 import React, { useEffect } from 'react';
 import axios from 'axios';
+const backend_url=import.meta.env.VITE_BACKEND_URL
 
 function GoogleLogin({ setUser }) {
+
   const handleGoogleLogin = () => {
-    window.location.href = 'https://inai-0og5.onrender.com/auth/google';
+    window.location.href = `${backend_url}/auth/google`;
   };
 
   // Handle authentication success redirect
