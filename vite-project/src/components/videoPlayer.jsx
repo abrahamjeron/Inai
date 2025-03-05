@@ -88,69 +88,67 @@ function YouTubePlayer({ videoId, socket, roomName }) {
     };
 
     return (
-        <div className="flex flex-col items-center gap-4 p-4">
-            
-                <div className="w-[700px] max-w-4xl flex flex-col">
-                    <div className="w-full h-96 rounded-2xl overflow-hidden relative">
-                        <iframe
-                            ref={iframeRef}
-                            id="youtube-player"
-                            width="100%"
-                            height="100%"
-                            src={`https://www.youtube.com/embed/${videoId}?enablejsapi=1`}
-                            title="YouTube video player"
-                            frameBorder="0"
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                            allowFullScreen
-                            className="rounded-2xl"
-                        ></iframe>
-                    </div>
-                    {videoTitle && <h2 className="text-lg font-semibold mt-2">{videoTitle}</h2>}
+        <div className="flex flex-col items-center gap-2 sm:gap-4 p-2 sm:p-4 w-full">
+            <div className="w-[750px] max-w-[750px] sm:max-w-4xl flex flex-col">
+                <div className="w-full h-48 sm:h-64 md:h-80 lg:h-96 rounded-2xl overflow-hidden relative">
+                    <iframe
+                        ref={iframeRef}
+                        id="youtube-player"
+                        width="100%"
+                        height="100%"
+                        src={`https://www.youtube.com/embed/${videoId}?enablejsapi=1`}
+                        title="YouTube video player"
+                        frameBorder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                        className="rounded-2xl"
+                    ></iframe>
+                </div>
+                {videoTitle && <h2 className="text-sm sm:text-base md:text-lg font-semibold mt-1 sm:mt-2 truncate">{videoTitle}</h2>}
 
-                    {/* Controls */}
-                    <div className="w-full max-w-3xl mx-auto py-3 mt-4 bg-gray-50 rounded-2xl">
-                        <div className="flex items-center justify-center gap-4">
-                            <button
-                                className="p-3 bg-black rounded-full text-white hover:bg-gray-800 transition-colors"
-                                aria-label="Rewind 10 seconds"
-                                onClick={() => seekVideo(-10)}
-                            >
-                                <Rewind className="w-3 h-3" />
-                            </button>
+                {/* Controls */}
+                <div className="w-full max-w-xs sm:max-w-lg md:max-w-2xl lg:max-w-3xl mx-auto py-2 sm:py-3 mt-2 sm:mt-4 bg-gray-50 rounded-2xl">
+                    <div className="flex items-center justify-center gap-2 sm:gap-4">
+                        <button
+                            className="p-2 sm:p-3 bg-black rounded-full text-white hover:bg-gray-800 transition-colors"
+                            aria-label="Rewind 10 seconds"
+                            onClick={() => seekVideo(-10)}
+                        >
+                            <Rewind className="w-2 h-2 sm:w-3 sm:h-3" />
+                        </button>
 
-                            <button
-                                className="p-3 bg-black rounded-full text-white hover:bg-gray-800 transition-colors"
-                                aria-label="Previous track"
-                            >
-                                <SkipBack className="w-5 h-5" />
-                            </button>
+                        <button
+                            className="p-2 sm:p-3 bg-black rounded-full text-white hover:bg-gray-800 transition-colors"
+                            aria-label="Previous track"
+                        >
+                            <SkipBack className="w-3 h-3 sm:w-5 sm:h-5" />
+                        </button>
 
-                            <button
-                                className="p-3 bg-black rounded-full text-white hover:bg-gray-800 transition-colors"
-                                aria-label={isPlaying ? "Pause" : "Play"}
-                                onClick={togglePlayPause}
-                            >
-                                {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}
-                            </button>
+                        <button
+                            className="p-2 sm:p-3 bg-black rounded-full text-white hover:bg-gray-800 transition-colors"
+                            aria-label={isPlaying ? "Pause" : "Play"}
+                            onClick={togglePlayPause}
+                        >
+                            {isPlaying ? <Pause className="w-3 h-3 sm:w-5 sm:h-5" /> : <Play className="w-3 h-3 sm:w-5 sm:h-5" />}
+                        </button>
 
-                            <button
-                                className="p-3 bg-black rounded-full text-white hover:bg-gray-800 transition-colors"
-                                aria-label="Next track"
-                            >
-                                <SkipForward className="w-5 h-5" />
-                            </button>
+                        <button
+                            className="p-2 sm:p-3 bg-black rounded-full text-white hover:bg-gray-800 transition-colors"
+                            aria-label="Next track"
+                        >
+                            <SkipForward className="w-3 h-3 sm:w-5 sm:h-5" />
+                        </button>
 
-                            <button
-                                className="p-3 bg-black rounded-full text-white hover:bg-gray-800 transition-colors"
-                                aria-label="Forward 10 seconds"
-                                onClick={() => seekVideo(10)}
-                            >
-                                <FastForward className="w-3 h-3" />
-                            </button>
-                        </div>
+                        <button
+                            className="p-2 sm:p-3 bg-black rounded-full text-white hover:bg-gray-800 transition-colors"
+                            aria-label="Forward 10 seconds"
+                            onClick={() => seekVideo(10)}
+                        >
+                            <FastForward className="w-2 h-2 sm:w-3 sm:h-3" />
+                        </button>
                     </div>
                 </div>
-            
+            </div>
         </div>
     );
 }
