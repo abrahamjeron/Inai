@@ -202,13 +202,11 @@ function Home({ user, setUser }) {
             <div className="w-full md:w-1/2">
               <div className="md:ml-28 text-center md:text-left">
                 <h1 className="text-white text-2xl md:text-[3rem] font-light md:w-[520px]">
-                  Chat with your friends seamlessly
+                Watch videos with your friends seamlessly
                 </h1>
                 <h3 className="text-[#BDBDBD] text-sm md:text-[1rem] mt-3 font-light md:w-[520px]">
-                  Connect with friends in real-time chat rooms,<br />
-                  create public or private spaces for discussions,<br />
-                  and enjoy interactive conversations with<br />
-                  real-time messaging and reactions.
+                Watch videos seamlessly with your friends in <br /> perfect sync, no matter where they are. Enjoy <br />
+                 shared viewing experiences with interactive <br /> controls and real-time reactions.
                 </h3>
                 <div className="flex mt-[30px] space-x-4 justify-center md:justify-start">
                   <button

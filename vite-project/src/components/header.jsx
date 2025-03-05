@@ -70,7 +70,7 @@ const Header = () => {
                 className='h-10 w-10 rounded-full object-cover'
               />
 
-              <button
+              {/* <button
                 onClick={() => {
                   localStorage.removeItem('user');
                   setUser(null);
@@ -79,7 +79,7 @@ const Header = () => {
                 className="bg-red-600 px-2 py-1 rounded w-full md:w-auto text-right md:text-left"
               >
                 Logout
-              </button>
+              </button> */}
             </div>
           ) : (
             <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-4 w-full md:w-auto">
