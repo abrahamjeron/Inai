@@ -141,8 +141,7 @@ function ChatRoom({ room, user, socket, leaveRoom, isPlaying }) {
             />
             <SearchBox onVideoSelect={handleVideoSelect} />
           </div>
-
-          <div className="bg-[#F6F7F9] rounded-2xl w-[700px] ml-[15px] overflow-y-scroll h-[250px] mb-2 space-y-1 p-4">
+          <div className="max-w-[63%] ml-[10px]  overflow-y-scroll h-[250px] mb-2 space-y-1 p-4 bg-[#F6F7F9] rounded-2xl">
             {messages
               .filter((msg) => msg.user !== 'System')
               .map((msg) => (
@@ -240,11 +239,10 @@ function ChatRoom({ room, user, socket, leaveRoom, isPlaying }) {
                 <img src={Sent} alt="" />
               </button>
             </form>
-
+            </div>
           </div>
         </div>
       </div>
-    </div>
   );
 }
 
