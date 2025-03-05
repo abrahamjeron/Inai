@@ -4,8 +4,6 @@ import io from "socket.io-client";
 import { Link } from "react-router-dom";
 import { Search } from "lucide-react";
 import ChatRoom from "../components/ChatRoom";
-import Header from '../components/header'
-import RoomMembers from "../components/Members";
 
 import { Card, CardHeader, CardTitle, CardContent } from '../components/Card';
 import landingimg from "../assets/landingimg.svg";
@@ -33,7 +31,7 @@ function Home({ user, setUser }) {
   const [selectedRoom, setSelectedRoom] = useState(null);
   const [error, setError] = useState("");
   const [showRooms, setShowRooms] = useState(false);
-  const backend_url=import.meta.env.VITE_BACKEND_URL
+  const backend_url = import.meta.env.VITE_BACKEND_URL
 
   useEffect(() => {
     if (user) {
@@ -81,12 +79,12 @@ function Home({ user, setUser }) {
       console.error("Error creating room:", error);
     }
   };
-// verfies the room joining
+
   const handleJoinRoom = async (room) => {
     if (room.isPrivate) {
-        console.log("private room clicked")
-        setShowPasswordModal(true);
-        setSelectedRoom(room);   
+      console.log("private room clicked")
+      setShowPasswordModal(true);
+      setSelectedRoom(room);   
     } else {
       joinRoom(room);
     }
@@ -134,18 +132,17 @@ function Home({ user, setUser }) {
 
   if (showRooms || currentRoom) {
     return (
-      <div className="">
+      <div className="w-full">
         <div className="">
           {currentRoom ? (
-            <div className="ml-[30px]">
-            <ChatRoom
-              room={currentRoom}
-              user={user}
-              socket={socket}
-              leaveRoom={leaveRoom}
-            />
+            <div className="ml-2 md:ml-[30px]">
+              <ChatRoom
+                room={currentRoom}
+                user={user}
+                socket={socket}
+                leaveRoom={leaveRoom}
+              />
             </div>
-            
           ) : (
             <div className="flex items-center justify-center h-full">
               <p className="text-gray-500 text-lg">Select a room to start chatting</p>
@@ -157,142 +154,139 @@ function Home({ user, setUser }) {
   }
 
   return (
-
-    <div>
-        {/* <Header/> */}
-        {showPasswordModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-            <div className="bg-white p-4 rounded-lg w-80">
-              <h3 className="text-lg font-bold mb-4">Enter Room Password</h3>
-              <form onSubmit={handlePasswordSubmit}>
-                <input
-                  type="password"
-                  value={roomPassword}
-                  onChange={(e) => setRoomPassword(e.target.value)}
-                  className="w-full p-2 border rounded mb-4"
-                  placeholder="Password"
-                />
-                <div className="flex justify-end space-x-2">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setShowPasswordModal(false);
-                      setRoomPassword("");
-                    }}
-                    className="px-4 py-2 bg-gray-300 rounded"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    className="px-4 py-2 bg-blue-500 text-white rounded"
-                  >
-                    Join
-                  </button>
-                </div>
-              </form>
-            </div>
+    <div className="w-full px-2 md:px-0">
+      {/* Password Modal - Mobile Responsive */}
+      {showPasswordModal && (
+        <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center p-4">
+          <div className="bg-white p-4 rounded-lg w-full max-w-md">
+            <h3 className="text-lg font-bold mb-4">Enter Room Password</h3>
+            <form onSubmit={handlePasswordSubmit}>
+              <input
+                type="password"
+                value={roomPassword}
+                onChange={(e) => setRoomPassword(e.target.value)}
+                className="w-full p-2 border rounded mb-4"
+                placeholder="Password"
+              />
+              <div className="flex justify-end space-x-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowPasswordModal(false);
+                    setRoomPassword("");
+                  }}
+                  className="px-4 py-2 bg-gray-300 rounded"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-blue-500 text-white rounded"
+                >
+                  Join
+                </button>
+              </div>
+            </form>
           </div>
-        )}
+        </div>
+      )}
+
+      {/* Main Content - Mobile Responsive */}
       <div className="flex justify-center">
-        <div className="bg-black rounded-2xl w-[93%] mt-6 h-auto">
+        <div className="bg-black rounded-2xl w-full md:w-[93%] mt-6 h-auto">
           <div className="flex mt-10 items-center justify-center">
-            <h1 className="text-[6rem] font-bold tracking-tight bg-gradient-to-r from-white via-gray-300 to-gray-400 text-transparent bg-clip-text">
+            <h1 className="text-4xl md:text-[6rem] font-bold tracking-tight bg-gradient-to-r from-white via-gray-300 to-gray-400 text-transparent bg-clip-text">
               InaiVibe
             </h1>
           </div>
-          <div className="flex mt-4">
-            <div>
-              <div className="ml-28">
-                <h1 className="text-white text-[3rem] font-light w-[520px]">
+          <div className="flex flex-col md:flex-row mt-4 px-4 md:px-0">
+            <div className="w-full md:w-1/2">
+              <div className="md:ml-28 text-center md:text-left">
+                <h1 className="text-white text-2xl md:text-[3rem] font-light md:w-[520px]">
                   Chat with your friends seamlessly
                 </h1>
-                <h3 className="text-[#BDBDBD] text-[1rem] mt-3 font-light w-[520px]">
-                  Connect with friends in real-time chat rooms, <br />
-                  create public or private spaces for discussions, <br />
-                  and enjoy interactive conversations with <br />
+                <h3 className="text-[#BDBDBD] text-sm md:text-[1rem] mt-3 font-light md:w-[520px]">
+                  Connect with friends in real-time chat rooms,<br />
+                  create public or private spaces for discussions,<br />
+                  and enjoy interactive conversations with<br />
                   real-time messaging and reactions.
                 </h3>
-                <div className="flex mt-[30px] space-x-4">
-                    {/* room creation */}
-                <button
-              className="text-black bg-white text-[1.2rem] p-2 px-5 rounded-3xl"
-              onClick={() => {
-                const name = prompt("Room name:");
-                const password = prompt("Room password:");
-                if (name) createRoom(name, true, password);
-              }}
-            >
-              Create Private Room
-            </button>
+                <div className="flex mt-[30px] space-x-4 justify-center md:justify-start">
+                  <button
+                    className="text-black bg-white text-sm md:text-[1.2rem] p-2 px-5 rounded-3xl"
+                    onClick={() => {
+                      const name = prompt("Room name:");
+                      const password = prompt("Room password:");
+                      if (name) createRoom(name, true, password);
+                    }}
+                  >
+                    Create Private Room
+                  </button>
 
-            <button
-              className="text-white relative top-2 text-[1.2rem]"
-              onClick={() => {
-                const name = prompt("Room name:");
-                if (name) createRoom(name, false);
-              }}
-            >
-              Create Public Room
-            </button>
-
+                  <button
+                    className="text-white relative top-2 text-sm md:text-[1.2rem]"
+                    onClick={() => {
+                      const name = prompt("Room name:");
+                      if (name) createRoom(name, false);
+                    }}
+                  >
+                    Create Public Room
+                  </button>
                 </div>
               </div>
             </div>
-            <div className="mt-[10px] mb-[80px] mr-6 ml-12">
-              <img src={landingimg} className="h-[400px]" alt="Landing" />
+            <div className="w-full md:w-1/2 flex justify-center mt-6 md:mt-[10px] mb-[80px]">
+              <img src={landingimg} className="h-[250px] md:h-[400px]" alt="Landing" />
             </div>
           </div>
         </div>
       </div>
-      <div className="mb-4">
 
+      <Card className="mt-4">
+        <CardHeader>
+          <CardTitle>Join the Available Rooms</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="relative w-full max-w-[350px] mx-auto mb-[20px]">
+            <input
+              type="text"
+              placeholder="Search rooms..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full p-2 pr-10 rounded-3xl border"
+            />
+            <Search className="absolute right-3 top-2.5 text-gray-400" size={20} />
           </div>
-      <Card>
-            <CardHeader>
-              <CardTitle>Join the Available Rooms</CardTitle>
-            </CardHeader>
-            <CardContent>
-            <div className="relative w-[350px]  ml-[60px] mt-[20px] mb-[20px]">
-              <input
-                type="text"
-                placeholder="Search rooms..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-[350px] p-2 pr-10 rounded-3xl border"
-              />
-              <Search className="absolute right-3 top-2.5 text-gray-400" size={20} />
-            </div>
-            <div className=" grid grid-cols-1 sm:grid-cols-4 lg:grid-cols-4 gap-4 ml-[50px]">
-                {filteredRooms.map((room) => (
-                  <div
-                    key={room._id}
-                    className=" group p-2 bg-white hover:bg-black w-[350px] h-[70px] rounded-3xl shadow hover:shadow-md transition-shadow"
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex flex-col ml-4">
-                        <span className="font-bold text-[1.2rem]  group-hover:text-white ">{room.name}</span>
-                        <span className="">
-                          {room.isPrivate ? 
-                            <span className="text-gray-400 text-[0.8rem]">Private</span> : 
-                            <span className="text-gray-400 text-[0.8rem]">Public</span>
-                          }
-                        </span>
-                      </div>
-                      {currentRoom?._id !== room._id && (
-                        <button
-                          onClick={() => handleJoinRoom(room)}
-                          className="px-3 py-1 bg-black mr-3 text-white rounded-full hover:bg-[#F6F7F9] group-hover:text-black group-hover:bg-[#ffff]"
-                        >
-                          Join
-                        </button>
-                      )}
-                    </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 px-4 md:px-[50px]">
+            {filteredRooms.map((room) => (
+              <div
+                key={room._id}
+                className="group p-2 bg-white hover:bg-black w-full max-w-[350px] h-[70px] rounded-3xl shadow hover:shadow-md transition-shadow mx-auto"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex flex-col ml-4">
+                    <span className="font-bold text-[1.2rem] group-hover:text-white">{room.name}</span>
+                    <span>
+                      {room.isPrivate ? 
+                        <span className="text-gray-400 text-[0.8rem]">Private</span> : 
+                        <span className="text-gray-400 text-[0.8rem]">Public</span>
+                      }
+                    </span>
                   </div>
-                ))}
+                  {currentRoom?._id !== room._id && (
+                    <button
+                      onClick={() => handleJoinRoom(room)}
+                      className="px-3 py-1 bg-black mr-3 text-white rounded-full hover:bg-[#F6F7F9] group-hover:text-black group-hover:bg-[#ffff]"
+                    >
+                      Join
+                    </button>
+                  )}
+                </div>
               </div>
-            </CardContent>
-          </Card>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

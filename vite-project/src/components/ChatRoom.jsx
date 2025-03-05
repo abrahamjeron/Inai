@@ -1,20 +1,26 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
+
+// Import components and assets
 import VideoPlayer from "../components/videoPlayer";
 import SearchBox from '../components/searchBox';
 import RoomMembers from "../components/Members";
-import Sent from "../assets/Sent.svg"
-const backend_url = import.meta.env.VITE_BACKEND_URL
+import Sent from "../assets/Sent.svg";
+
+// Get backend URL from environment variables
+const backend_url = import.meta.env.VITE_BACKEND_URL;
 
 function ChatRoom({ room, user, socket, leaveRoom, isPlaying }) {
+  // State variables
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState([]);
   const [selectedVideoId, setSelectedVideoId] = useState('');
+  const [isMembersPanelOpen, setIsMembersPanelOpen] = useState(false);
   const messagesEndRef = useRef(null);
 
+  // Effect to handle current video selection
   useEffect(() => {
     if (selectedVideoId && room.name) {
-      // Making sure to emit with the correct room name
       socket.emit('set current video', {
         roomName: room.name,
         videoId: selectedVideoId,
@@ -22,10 +28,12 @@ function ChatRoom({ room, user, socket, leaveRoom, isPlaying }) {
     }
   }, [selectedVideoId, room.name, socket]);
 
+  // Effect to handle socket events and message fetching
   useEffect(() => {
     fetchMessages();
     scrollToBottom();
 
+    // Socket event listeners
     socket.on('chat message', (msg) => {
       setMessages((prevMessages) => [...prevMessages, msg]);
     });
@@ -44,13 +52,12 @@ function ChatRoom({ room, user, socket, leaveRoom, isPlaying }) {
       );
     });
 
-    // Ensuring we're specifically listening for the right event and setting the video ID 
-    // regardless of which room it came from
     socket.on('current video changed', ({ videoId }) => {
       console.log('Video changed to:', videoId, 'in room:', room.name);
       setSelectedVideoId(videoId);
     });
 
+    // Cleanup socket listeners
     return () => {
       socket.off('chat message');
       socket.off('message deleted');
@@ -59,10 +66,12 @@ function ChatRoom({ room, user, socket, leaveRoom, isPlaying }) {
     };
   }, [socket, room]);
 
+  // Effect to scroll to bottom when messages change
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
 
+  // Fetch messages for the current room
   const fetchMessages = async () => {
     try {
       const response = await axios.get(
@@ -77,10 +86,12 @@ function ChatRoom({ room, user, socket, leaveRoom, isPlaying }) {
     }
   };
 
+  // Scroll to bottom of messages
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
+  // Send a new message
   const sendMessage = (e) => {
     e.preventDefault();
     if (message) {
@@ -95,6 +106,7 @@ function ChatRoom({ room, user, socket, leaveRoom, isPlaying }) {
     }
   };
 
+  // Delete a message
   const deleteMessage = async (messageId) => {
     try {
       await axios.delete(`${backend_url}/messages/${messageId}`, {
@@ -106,6 +118,7 @@ function ChatRoom({ room, user, socket, leaveRoom, isPlaying }) {
     }
   };
 
+  // React to a message
   const reactToMessage = (messageId, reaction) => {
     socket.emit('react to message', {
       messageId,
@@ -114,135 +127,171 @@ function ChatRoom({ room, user, socket, leaveRoom, isPlaying }) {
     });
   };
 
-  const handlePlay = () => {
-    socket.emit('video play', { roomName: room.name });
+  // Toggle members panel
+  const toggleMembersPanel = () => {
+    setIsMembersPanelOpen(!isMembersPanelOpen);
   };
 
-  const handlePause = () => {
-    socket.emit('video pause', { roomName: room.name });
-  };
-
-  // Handle video selection from the search box
+  // Handle video selection
   const handleVideoSelect = (videoId) => {
     setSelectedVideoId(videoId);
   };
 
   return (
     <div className="h-full flex flex-col">
-      <div className="flex">
-        <RoomMembers roomId={room._id} leaveRoom={leaveRoom} roomName={room.name} currentuserName={user.username } currentuserAvt={user.avatar} />
+      <div className="flex flex-col md:flex-row">
+        {/* Desktop: Members Panel */}
+        <div className="hidden md:block w-full md:w-auto md:min-w-[270px]">
+          <RoomMembers 
+            roomId={room._id} 
+            leaveRoom={leaveRoom} 
+            roomName={room.name} 
+            currentuserName={user.username} 
+            currentuserAvt={user.avatar} 
+          />
+        </div>
 
         <div className="flex flex-col w-full">
-          <div className="flex">
-            <VideoPlayer
-              videoId={selectedVideoId}
-              socket={socket}
-              roomName={room.name}
-            />
-            <SearchBox onVideoSelect={handleVideoSelect} />
-          </div>
-          <div className="max-w-[63%] ml-[10px]  overflow-y-scroll h-[250px] mb-2 space-y-1 p-4 bg-[#F6F7F9] rounded-2xl">
-            {messages
-              .filter((msg) => msg.user !== 'System')
-              .map((msg) => (
-                <div
-                  key={msg._id}
-                  className={`group p-2 rounded flex flex-col ${
-                    msg.user === user.username
-                      ? 'items-end'
-                      : 'items-start'
-                  }`}
-                >
-                  <span
-                    className={`text-[0.9rem] ${
-                      msg.user === user.username
-                        ? 'text-right text-black'
-                        : 'text-left text-gray-600'
-                    }`}
-                  >
-                    {msg.user}:
-                  </span>
-
-                  <div
-                    className={`inline-block max-w-[70%] py-2 px-3 rounded-2xl break-words ${
-                      msg.user === user.username
-                        ? 'bg-black text-white ml-auto text-right'
-                        : 'bg-white text-black mr-auto text-left'
-                    }`}
-                  >
-                    <p className="text-[1rem]">{msg.text}</p>
-                  </div>
-
-                  {msg.file && (
-                    <a
-                      href={`${backend_url}/uploads/${msg.file}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-500"
-                    >
-                      Attached File
-                    </a>
-                  )}
-
-                  <div className="flex space-x-2 mt-2 group-hover:flex">
-                    <button
-                      onClick={() => reactToMessage(msg._id, '👍')}
-                      className="text-sm"
-                    >
-                      👍
-                    </button>
-                    <button
-                      onClick={() => reactToMessage(msg._id, '❤️')}
-                      className="text-sm"
-                    >
-                      ❤️
-                    </button>
-                    <button
-                      onClick={() => reactToMessage(msg._id, '😂')}
-                      className="text-sm"
-                    >
-                      😂
-                    </button>
-                    {msg.user === user.username && (
-                      <button
-                        onClick={() => deleteMessage(msg._id)}
-                        className="text-[0.9rem] text-red-500 mt-1"
-                      >
-                        Delete
-                      </button>
-                    )}
-                  </div>
-
-                  {msg.reactions && msg.reactions.length > 0 && (
-                    <div className="text-sm text-gray-500">
-                      {msg.reactions
-                        .map((r) => `${r.user[0]}: ${r.reaction}`)
-                        .join(', ')}
-                    </div>
-                  )}
-                </div>
-              ))}
-
-            <div ref={messagesEndRef} />
-            <form onSubmit={sendMessage} className="flex w-full mt-2">
-              <input
-                type="text"
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-                className="w-full p-3  border border-gray-300 bg-white rounded-3xl focus:outline-none focus:ring-1"
-                placeholder="Type a message..."
+          <div className="flex flex-col md:flex-row">
+            <div className="w-full">
+              <VideoPlayer
+                videoId={selectedVideoId}
+                socket={socket}
+                roomName={room.name}
               />
-              <button
-                type="submit"
-                className="bg-black relative  p-4 rounded-4xl"
-              >
-                <img src={Sent} alt="" />
-              </button>
-            </form>
+            </div>
+            <div className="w-full md:w-1/2">
+              <SearchBox onVideoSelect={handleVideoSelect} />
+            </div>
+          </div>
+          
+          <div className="flex flex-col">
+            {/* Mobile: Members Toggle Button */}
+            <button 
+              onClick={toggleMembersPanel} 
+              className="md:hidden self-end bg-black text-white p-2 rounded-lg m-2"
+            >
+              {isMembersPanelOpen ? 'Hide Members' : 'Show Members'}
+            </button>
+
+            <div className="flex flex-col-reverse md:flex-row">
+              <div className="w-full max-w-full md:max-w-[63%] ml-0 md:ml-[10px] overflow-y-scroll h-[250px] mb-2 space-y-1 p-2 md:p-4 bg-[#F6F7F9] rounded-2xl">
+                {messages
+                  .filter((msg) => msg.user !== 'System')
+                  .map((msg) => (
+                    <div
+                      key={msg._id}
+                      className={`group p-2 rounded flex flex-col ${
+                        msg.user === user.username
+                          ? 'items-end'
+                          : 'items-start'
+                      }`}
+                    >
+                      <span
+                        className={`text-[0.9rem] ${
+                          msg.user === user.username
+                            ? 'text-right text-black'
+                            : 'text-left text-gray-600'
+                        }`}
+                      >
+                        {msg.user}:
+                      </span>
+
+                      <div
+                        className={`inline-block max-w-[70%] py-2 px-3 rounded-2xl break-words ${
+                          msg.user === user.username
+                            ? 'bg-black text-white ml-auto text-right'
+                            : 'bg-white text-black mr-auto text-left'
+                        }`}
+                      >
+                        <p className="text-[1rem]">{msg.text}</p>
+                      </div>
+
+                      {msg.file && (
+                        <a
+                          href={`${backend_url}/uploads/${msg.file}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-500"
+                        >
+                          Attached File
+                        </a>
+                      )}
+
+                      <div className="flex space-x-2 mt-2 group-hover:flex">
+                        <button
+                          onClick={() => reactToMessage(msg._id, '👍')}
+                          className="text-sm"
+                        >
+                          👍
+                        </button>
+                        <button
+                          onClick={() => reactToMessage(msg._id, '❤️')}
+                          className="text-sm"
+                        >
+                          ❤️
+                        </button>
+                        <button
+                          onClick={() => reactToMessage(msg._id, '😂')}
+                          className="text-sm"
+                        >
+                          😂
+                        </button>
+                        {msg.user === user.username && (
+                          <button
+                            onClick={() => deleteMessage(msg._id)}
+                            className="text-[0.9rem] text-red-500 mt-1"
+                          >
+                            Delete
+                          </button>
+                        )}
+                      </div>
+
+                      {msg.reactions && msg.reactions.length > 0 && (
+                        <div className="text-sm text-gray-500">
+                          {msg.reactions
+                            .map((r) => `${r.user[0]}: ${r.reaction}`)
+                            .join(', ')}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+
+                <div ref={messagesEndRef} />
+                <form onSubmit={sendMessage} className="flex w-full mt-2">
+                  <input
+                    type="text"
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                    className="w-full p-2 md:p-3 border border-gray-300 bg-white rounded-3xl focus:outline-none focus:ring-1"
+                    placeholder="Type a message..."
+                  />
+                  <button
+                    type="submit"
+                    className="bg-black relative p-2 md:p-4 rounded-4xl ml-2"
+                  >
+                    <img src={Sent} alt="" className="w-5 h-5 md:w-auto md:h-auto" />
+                  </button>
+                </form>
+              </div>
+
+              {/* Mobile: Conditionally render Members Panel */}
+              {isMembersPanelOpen && (
+                <div className="md:hidden w-full p-2">
+                  <RoomMembers 
+                    roomId={room._id} 
+                    leaveRoom={leaveRoom} 
+                    roomName={room.name} 
+                    currentuserName={user.username} 
+                    currentuserAvt={user.avatar} 
+                  />
+                </div>
+              )}
             </div>
           </div>
         </div>
       </div>
+    </div>
   );
 }
 
