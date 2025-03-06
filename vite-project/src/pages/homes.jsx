@@ -38,6 +38,23 @@ function Home({ user, setUser }) {
     }
   }, [user]);
 
+  useEffect(() => {
+    // Socket event listeners
+    socket.on('room deleted', ({ roomName }) => {
+      // Remove the deleted room from the rooms list
+      setRooms(prevRooms => prevRooms.filter(room => room.name !== roomName));
+      
+      // If the current room was deleted, leave it
+      if (currentRoom?.name === roomName) {
+        leaveRoom();
+      }
+    });
+
+    return () => {
+      socket.off('room deleted');
+    };
+  }, [currentRoom]);
+
   const fetchRooms = async () => {
     try {
       const response = await axios.get(`${backend_url}/rooms`, {

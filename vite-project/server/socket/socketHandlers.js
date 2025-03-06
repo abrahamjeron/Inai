@@ -113,6 +113,34 @@ export const setupSocketHandlers = (io) => {
       }
     });
 
+    // Delete a room
+    socket.on('delete room', async ({ roomId, roomName }) => {
+      try {
+        const room = await Room.findById(roomId);
+        if (!room) {
+          socket.emit('room error', { error: 'Room not found' });
+          return;
+        }
+
+        // Delete all messages in the room
+        await Message.deleteMany({ room: roomName });
+        
+        // Delete the room
+        await Room.findByIdAndDelete(roomId);
+        
+        // Notify all users in the room that it was deleted
+        io.to(roomName).emit('room deleted', { roomName });
+        
+        // Disconnect all users from the room
+        const sockets = await io.in(roomName).fetchSockets();
+        sockets.forEach(socket => {
+          socket.leave(roomName);
+        });
+      } catch (error) {
+        socket.emit('room error', { error: 'Failed to delete room', details: error.message });
+      }
+    });
+
     // React to a message
     socket.on('react to message', async ({ messageId, user, reaction }) => {
       try {

@@ -1,6 +1,13 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import io from "socket.io-client";
 const backend_url = import.meta.env.VITE_BACKEND_URL
+
+// Initialize socket connection
+const socket = io(backend_url, {
+    transports: ["websocket"],
+    withCredentials: true,
+});
 
 function RoomMembers({ roomId, leaveRoom, roomName, currentuserName, currentuserAvt }) {
     const [members, setMembers] = useState([]);
@@ -8,12 +15,40 @@ function RoomMembers({ roomId, leaveRoom, roomName, currentuserName, currentuser
     const [creatorData, setCreatorData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
+    const [isAdmin, setIsAdmin] = useState(false);
 
     useEffect(() => {
         const fetchRoomData = async () => {
             try {
+                console.log('=== Room Data Fetch Start ===');
+                console.log('Room ID:', roomId);
+                console.log('Current User:', currentuserName);
+                
                 const response = await axios.get(`${backend_url}/rooms/${roomId}`);
                 const roomData = response.data;
+
+                console.log('Room Data:', {
+                    name: roomData.name,
+                    creator: roomData.creator,
+                    admins: roomData.admins,
+                    members: roomData.members
+                });
+                
+                // Check if current user is admin or creator
+                const isCreator = roomData.creator === currentuserName;
+                const isInAdmins = roomData.admins?.includes(currentuserName);
+                const isUserAdmin = isCreator || isInAdmins;
+                
+                console.log('Admin Check:', {
+                    isCreator,
+                    isInAdmins,
+                    isUserAdmin,
+                    currentuserName,
+                    roomCreator: roomData.creator,
+                    roomAdmins: roomData.admins
+                });
+                
+                setIsAdmin(isUserAdmin);
 
                 // Fetch the creator's data
                 const creatorResponse = await axios.get(`${backend_url}/users/${roomData.creator}`);
@@ -25,14 +60,16 @@ function RoomMembers({ roomId, leaveRoom, roomName, currentuserName, currentuser
                 );
                 setMembers(filteredMembers);
                 setLoading(false);
+                console.log('=== Room Data Fetch Complete ===');
             } catch (err) {
                 setError("Failed to fetch members");
                 setLoading(false);
+                console.error('Error fetching room data:', err);
             }
         };
 
         fetchRoomData();
-    }, [roomId]);
+    }, [roomId, currentuserName]);
 
     useEffect(() => {
         const displayMembersData = async () => {
@@ -56,6 +93,43 @@ function RoomMembers({ roomId, leaveRoom, roomName, currentuserName, currentuser
 
     const truncateName = (name, maxLength = 13) => {
         return name.length > maxLength ? name.slice(0, maxLength) + "..." : name;
+    };
+
+    const handleDeleteRoom = async () => {
+        if (!window.confirm('Are you sure you want to delete this room? This action cannot be undone.')) {
+            return;
+        }
+
+        try {
+            console.log('=== Delete Room Attempt ===');
+            console.log('Room ID:', roomId);
+            console.log('Room Name:', roomName);
+            console.log('Current User:', currentuserName);
+            
+            // Get the user token from localStorage
+            const userData = JSON.parse(localStorage.getItem('user'));
+            if (!userData?.token) {
+                throw new Error('No authentication token found');
+            }
+
+            const response = await axios.delete(`${backend_url}/rooms/${roomId}`, {
+                headers: { Authorization: userData.token }
+            });
+            
+            console.log('Delete Response:', response.data);
+            
+            // Emit socket event to delete room
+            socket.emit('delete room', { roomId, roomName });
+            console.log('Socket Event Emitted');
+            
+            // Leave the room after deletion
+            leaveRoom();
+            console.log('=== Delete Room Complete ===');
+        } catch (err) {
+            setError(err.response?.data?.error || "Failed to delete room");
+            console.error('Delete Room Error:', err);
+            console.error('Error Details:', err.response?.data);
+        }
     };
 
     if (loading) return <p className="p-4 text-center">Loading members...</p>;
@@ -169,10 +243,18 @@ function RoomMembers({ roomId, leaveRoom, roomName, currentuserName, currentuser
                     </div>
                 </div>
             </div>
-            <div className="flex justify-center md:justify-start md:ml-3 mt-2">
+            <div className="flex justify-center md:justify-start md:ml-3 mt-2 space-x-2">
+                {isAdmin && (
+                    <button
+                        onClick={handleDeleteRoom}
+                        className="bg-red-600 text-white w-[100px] md:w-[120px] p-2 rounded text-sm hover:bg-red-700"
+                    >
+                        Delete Room
+                    </button>
+                )}
                 <button
                     onClick={leaveRoom}
-                    className="bg-red-500 text-white w-[100px] md:w-[120px] p-2 rounded text-sm"
+                    className="bg-red-500 text-white w-[100px] md:w-[120px] p-2 rounded text-sm hover:bg-red-600"
                 >
                     Leave Room
                 </button>
