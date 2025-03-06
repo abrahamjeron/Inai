@@ -60,7 +60,7 @@ function App() {
           path="/room" 
           element={
             user ? (
-              <Room user={user} />
+              <Room user={user} setUser={setUser} />
             ) : (
               <Navigate to="/login" />
             )
