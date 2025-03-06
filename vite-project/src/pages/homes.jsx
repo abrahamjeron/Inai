@@ -3,6 +3,7 @@ import axios from "axios";
 import io from "socket.io-client";
 import { Search } from "lucide-react";
 import ChatRoom from "../components/ChatRoom";
+import { useNavigate } from 'react-router-dom';
 
 import { Card, CardHeader, CardTitle, CardContent } from '../components/Card';
 import landingimg from "../assets/landingimg.svg";
@@ -22,6 +23,7 @@ socket.on("connect_error", (err) => {
 });
 
 function Home({ user, setUser }) {
+  const navigate = useNavigate();
   const [rooms, setRooms] = useState([]);
   const [currentRoom, setCurrentRoom] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
@@ -33,10 +35,25 @@ function Home({ user, setUser }) {
   const backend_url = import.meta.env.VITE_BACKEND_URL
 
   useEffect(() => {
+    // Check for existing room data in localStorage
+    const storedRoom = localStorage.getItem('currentRoom');
+    if (storedRoom) {
+      try {
+        const roomData = JSON.parse(storedRoom);
+        setCurrentRoom(roomData);
+        setShowRooms(true);
+        // Navigate to room page
+        navigate('/room');
+      } catch (error) {
+        console.error('Error parsing stored room data:', error);
+        localStorage.removeItem('currentRoom');
+      }
+    }
+
     if (user) {
       fetchRooms();
     }
-  }, [user]);
+  }, [user, navigate]);
 
   useEffect(() => {
     // Socket event listeners
@@ -82,14 +99,22 @@ function Home({ user, setUser }) {
         return;
       }
 
+      // Create room and navigate immediately
       const response = await axios.post(
         `${backend_url}/rooms`,
         { name: roomName, isPrivate, password },
         { headers: { Authorization: user.token } }
       );
-      setRooms([...rooms, response.data]);
-      setError("");
-      setShowRooms(true);
+      
+      const newRoom = response.data;
+      
+      // Store room data and navigate immediately without waiting for state updates
+      localStorage.setItem('currentRoom', JSON.stringify(newRoom));
+      navigate('/room', { state: { currentRoom: newRoom } });
+      
+      // Update rooms list in background
+      setRooms(prev => [...prev, newRoom]);
+      
     } catch (error) {
       setError(error.response?.data?.error || "Error creating room");
       console.error("Error creating room:", error);
@@ -116,18 +141,14 @@ function Home({ user, setUser }) {
         );
       }
 
-      if (currentRoom) {
-        socket.emit("leave room", currentRoom.name);
-      }
+      // Store room data and navigate immediately
+      localStorage.setItem('currentRoom', JSON.stringify(room));
+      navigate('/room', { state: { currentRoom: room } });
+      
+      // Update state in background
       setCurrentRoom(room);
-      socket.emit("join room", {
-        roomName:room.name,
-        userName:user.username
-       });
-      setShowPasswordModal(false);
-      setRoomPassword("");
-      setError("");
       setShowRooms(true);
+      
     } catch (error) {
       setError(error.response?.data?.error || "Error joining room");
     }
