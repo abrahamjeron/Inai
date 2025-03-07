@@ -35,25 +35,11 @@ function Home({ user, setUser }) {
   const backend_url = import.meta.env.VITE_BACKEND_URL
 
   useEffect(() => {
-    // Check for existing room data in localStorage
-    const storedRoom = localStorage.getItem('currentRoom');
-    if (storedRoom) {
-      try {
-        const roomData = JSON.parse(storedRoom);
-        setCurrentRoom(roomData);
-        setShowRooms(true);
-        // Navigate to room page
-        navigate('/room');
-      } catch (error) {
-        console.error('Error parsing stored room data:', error);
-        localStorage.removeItem('currentRoom');
-      }
-    }
-
+    // Only fetch rooms when user is logged in
     if (user) {
       fetchRooms();
     }
-  }, [user, navigate]);
+  }, [user]);
 
   useEffect(() => {
     // Socket event listeners
@@ -99,7 +85,7 @@ function Home({ user, setUser }) {
         return;
       }
 
-      // Create room and navigate immediately
+      // Create room
       const response = await axios.post(
         `${backend_url}/rooms`,
         { name: roomName, isPrivate, password },
@@ -108,12 +94,14 @@ function Home({ user, setUser }) {
       
       const newRoom = response.data;
       
-      // Store room data and navigate immediately without waiting for state updates
+      // Update state first
+      setCurrentRoom(newRoom);
+      setShowRooms(true);
+      setRooms(prev => [...prev, newRoom]);
+      
+      // Then store room data and navigate
       localStorage.setItem('currentRoom', JSON.stringify(newRoom));
       navigate('/room', { state: { currentRoom: newRoom } });
-      
-      // Update rooms list in background
-      setRooms(prev => [...prev, newRoom]);
       
     } catch (error) {
       setError(error.response?.data?.error || "Error creating room");
@@ -141,13 +129,13 @@ function Home({ user, setUser }) {
         );
       }
 
-      // Store room data and navigate immediately
-      localStorage.setItem('currentRoom', JSON.stringify(room));
-      navigate('/room', { state: { currentRoom: room } });
-      
-      // Update state in background
+      // Update state first
       setCurrentRoom(room);
       setShowRooms(true);
+      
+      // Then store room data and navigate
+      localStorage.setItem('currentRoom', JSON.stringify(room));
+      navigate('/room', { state: { currentRoom: room } });
       
     } catch (error) {
       setError(error.response?.data?.error || "Error joining room");
@@ -163,6 +151,7 @@ function Home({ user, setUser }) {
     if (currentRoom) {
       socket.emit("leave room", {roomName:currentRoom.name, userName:user.username });
       setCurrentRoom(null);
+      localStorage.removeItem('currentRoom');
     }
     setShowRooms(false);
   };
