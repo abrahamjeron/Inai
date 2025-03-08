@@ -175,7 +175,8 @@ function ChatRoom({ room, user, socket, leaveRoom, isPlaying }) {
             </button>
 
             <div className="flex flex-col-reverse md:flex-row">
-              <div className="w-full max-w-full md:max-w-[63%] ml-0 md:ml-[10px] overflow-y-scroll h-[250px] mb-2 space-y-1 p-2 md:p-4 bg-[#F6F7F9] rounded-2xl">
+              <div className="w-full max-w-full md:max-w-[63%] ml-0 md:ml-[10px]  h-[270px] mb-2 space-y-1 p-2 md:p-4 bg-[#F6F7F9] rounded-2xl">
+                <div className='overflow-y-scroll h-[250px]'>
                 {messages
                   .filter((msg) => msg.user !== 'System')
                   .map((msg) => (
@@ -258,6 +259,7 @@ function ChatRoom({ room, user, socket, leaveRoom, isPlaying }) {
                   ))}
 
                 <div ref={messagesEndRef} />
+                </div>
                 <form onSubmit={sendMessage} className="flex w-full mt-2">
                   <input
                     type="text"
