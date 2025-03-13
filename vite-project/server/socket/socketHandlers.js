@@ -125,6 +125,11 @@ export const setupSocketHandlers = (io) => {
         // Delete all messages in the room
         await Message.deleteMany({ room: roomName });
         
+        // Delete playlist associated with the room
+        await Playlist.deleteMany({ 
+          $or: [{ room: roomName }, { roomId: room._id }]
+        });
+        
         // Delete the room
         await Room.findByIdAndDelete(roomId);
         
@@ -137,6 +142,7 @@ export const setupSocketHandlers = (io) => {
           socket.leave(roomName);
         });
       } catch (error) {
+        console.error('Error deleting room:', error);
         socket.emit('room error', { error: 'Failed to delete room', details: error.message });
       }
     });

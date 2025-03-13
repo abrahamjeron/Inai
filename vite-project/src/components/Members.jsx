@@ -96,31 +96,27 @@ function RoomMembers({ roomId, leaveRoom, roomName, currentuserName, currentuser
     };
 
     const handleDeleteRoom = async () => {
-        if (!window.confirm('Are you sure you want to delete this room? This action cannot be undone.')) {
-            return;
-        }
-
         try {
-            console.log('=== Delete Room Attempt ===');
+            console.log('=== Delete Room Start ===');
             console.log('Room ID:', roomId);
             console.log('Room Name:', roomName);
-            console.log('Current User:', currentuserName);
             
-            // Get the user token from localStorage
+            // Get user data from localStorage
             const userData = JSON.parse(localStorage.getItem('user'));
-            if (!userData?.token) {
-                throw new Error('No authentication token found');
+            if (!userData || !userData.token) {
+                throw new Error('User not authenticated');
             }
 
+            // First emit socket event to delete room
+            socket.emit('delete room', { roomId, roomName });
+            console.log('Socket Event Emitted');
+            
+            // Then make the API call to delete the room
             const response = await axios.delete(`${backend_url}/rooms/${roomId}`, {
                 headers: { Authorization: userData.token }
             });
             
             console.log('Delete Response:', response.data);
-            
-            // Emit socket event to delete room
-            socket.emit('delete room', { roomId, roomName });
-            console.log('Socket Event Emitted');
             
             // Leave the room after deletion
             leaveRoom();
