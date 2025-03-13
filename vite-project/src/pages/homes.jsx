@@ -85,6 +85,13 @@ function Home({ user, setUser }) {
         return;
       }
 
+      // Check if room with same name exists
+      const existingRoom = rooms.find(room => room.name.toLowerCase() === roomName.toLowerCase());
+      if (existingRoom) {
+        setError("A room with this name already exists");
+        return;
+      }
+
       // Create room
       const response = await axios.post(
         `${backend_url}/rooms`,
