@@ -31,8 +31,7 @@ function ChatRoom({ room, user, socket, leaveRoom, isPlaying }) {
   // Effect to handle socket events and message fetching
   useEffect(() => {
     fetchMessages();
-    scrollToBottom();
-
+    
     // Socket event listeners
     socket.on('chat message', (msg) => {
       setMessages((prevMessages) => [...prevMessages, msg]);
@@ -66,11 +65,6 @@ function ChatRoom({ room, user, socket, leaveRoom, isPlaying }) {
     };
   }, [socket, room]);
 
-  // Effect to scroll to bottom when messages change
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
-
   // Fetch messages for the current room
   const fetchMessages = async () => {
     try {
@@ -84,11 +78,6 @@ function ChatRoom({ room, user, socket, leaveRoom, isPlaying }) {
     } catch (error) {
       console.error('Error fetching messages:', error);
     }
-  };
-
-  // Scroll to bottom of messages
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
   // Send a new message
