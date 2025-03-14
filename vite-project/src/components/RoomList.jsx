@@ -38,7 +38,7 @@ function RoomList() {
     };
   }, []);
 
-  // ... rest of your component code
+
 }
 
 export default RoomList; 
